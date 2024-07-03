@@ -102,27 +102,27 @@ if (@(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_METHOD']) && ($_
 
 class Extract_Phar
 {
-    static $temp;
-    static $origdir;
-    const GZ = 0x1000;
-    const BZ2 = 0x2000;
-    const MASK = 0x3000;
-    const START = 'index.php';
-    const LEN = XXXX;
+    public static $temp;
+    public static $origdir;
+    public const GZ = 0x1000;
+    public const BZ2 = 0x2000;
+    public const MASK = 0x3000;
+    public const START = 'index.php';
+    public const LEN = XXXX;
 
-    static function go($return  = false)
+    public static function go($return  = false)
     {
         $fp = fopen(__FILE__, 'rb');
         fseek($fp, self::LEN);
-        $L = unpack('V', $a = (binary)fread($fp, 4));
-        $m = (binary)'';
+        $L = unpack('V', $a = (string)fread($fp, 4));
+        $m = (string)'';
 
         do {
             $read = 8192;
             if ($L[1] - strlen($m) < 8192) {
                 $read = $L[1] - strlen($m);
             }
-            $last = (binary)fread($fp, $read);
+            $last = (string)fread($fp, $read);
             $m .= $last;
         } while (strlen($last) && strlen($m) < $L[1]);
 
@@ -153,8 +153,9 @@ class Extract_Phar
 
         if (!$temp || !is_writable($temp)) {
             $sessionpath = session_save_path();
-            if (strpos ($sessionpath, ";") !== false)
-                $sessionpath = substr ($sessionpath, strpos ($sessionpath, ";")+1);
+            if (strpos($sessionpath, ";") !== false) {
+                $sessionpath = substr($sessionpath, strpos($sessionpath, ";") + 1);
+            }
             if (!file_exists($sessionpath) || !is_dir($sessionpath)) {
                 die('Could not locate temporary directory to extract phar');
             }
@@ -193,7 +194,7 @@ class Extract_Phar
         }
     }
 
-    static function tmpdir()
+    public static function tmpdir()
     {
         if (strpos(PHP_OS, 'WIN') !== false) {
             if ($var = getenv('TMP') ? getenv('TMP') : getenv('TEMP')) {
@@ -210,7 +211,7 @@ class Extract_Phar
         return realpath('/tmp');
     }
 
-    static function _unpack($m)
+    public static function _unpack($m)
     {
         $info = unpack('V', substr($m, 0, 4));
         // skip API version, phar flags, alias, metadata
@@ -242,7 +243,7 @@ class Extract_Phar
         return $ret;
     }
 
-    static function extractFile($path, $entry, $fp)
+    public static function extractFile($path, $entry, $fp)
     {
         $data = '';
         $c = $entry[2];
@@ -268,14 +269,14 @@ class Extract_Phar
                 $entry[0] . ")");
         }
 
-        if ($entry[3] != sprintf("%u", crc32((binary)$data) & 0xffffffff)) {
+        if ($entry[3] != sprintf("%u", crc32((string)$data) & 0xffffffff)) {
             die("Invalid internal .phar file (checksum error)");
         }
 
         return $data;
     }
 
-    static function _removeTmpFiles($temp, $origdir)
+    public static function _removeTmpFiles($temp, $origdir)
     {
         chdir($temp);
 

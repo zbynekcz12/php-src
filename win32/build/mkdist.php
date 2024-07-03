@@ -1,4 +1,5 @@
 <?php
+
 /* piece together a windows binary distro */
 
 $php_version = $argv[1];
@@ -74,9 +75,11 @@ function get_depends($module)
     $is_pecl = in_array($module, $pecl_targets);
 
     $cmd = "$GLOBALS[build_dir]\\deplister.exe \"$module\" \"$GLOBALS[build_dir]\"";
-    $proc = proc_open($cmd,
-            array(1 => array("pipe", "w")),
-            $pipes);
+    $proc = proc_open(
+        $cmd,
+        array(1 => array("pipe", "w")),
+        $pipes
+    );
 
     $n = 0;
     while (($line = fgetcsv($pipes[1]))) {
@@ -125,7 +128,7 @@ function get_depends($module)
     }
     fclose($pipes[1]);
     proc_close($proc);
-//echo "Module $module [$n lines]\n";
+    //echo "Module $module [$n lines]\n";
 }
 
 function copy_file_list($source_dir, $dest_dir, $list)
@@ -181,15 +184,19 @@ function extract_file_from_tarball($pkg, $filename, $dest_dir) /* {{{ */
     do {
         /* read the header */
         $hdr_data = gzread($fp, 512);
-        if (strlen($hdr_data) == 0)
+        if (strlen($hdr_data) == 0) {
             break;
+        }
         $checksum = 0;
-        for ($i = 0; $i < 148; $i++)
+        for ($i = 0; $i < 148; $i++) {
             $checksum += ord($hdr_data[$i]);
-        for ($i = 148; $i < 156; $i++)
+        }
+        for ($i = 148; $i < 156; $i++) {
             $checksum += 32;
-        for ($i = 156; $i < 512; $i++)
+        }
+        for ($i = 156; $i < 512; $i++) {
             $checksum += ord($hdr_data[$i]);
+        }
 
         $hdr = unpack("a100filename/a8mode/a8uid/a8gid/a12size/a12mtime/a8checksum/a1typeflag/a100link/a6magic/a2version/a32uname/a32gname/a8devmajor/a8devminor", $hdr_data);
 
@@ -274,7 +281,9 @@ foreach ($general_files as $src => $dest) {
 $branch = "HEAD"; // TODO - determine this from GitHub branch name
 $fp = fopen("$dist_dir/snapshot.txt", "w");
 $now = date("r");
-fwrite($fp, <<<EOT
+fwrite(
+    $fp,
+    <<<EOT
 This snapshot was automatically generated on
 $now
 
@@ -296,8 +305,9 @@ fwrite($fp, "\r\n\r\n");
 /* list dependencies */
 fprintf($fp, "Dependency information:\r\n");
 foreach ($per_module_deps as $modulename => $deps) {
-    if (in_array($modulename, $pecl_targets))
+    if (in_array($modulename, $pecl_targets)) {
         continue;
+    }
 
     fprintf($fp, "Module: %s\r\n", $modulename);
     fwrite($fp, "===========================\r\n");
@@ -353,7 +363,7 @@ foreach ($ENCHANT_DLLS as $dll) {
     }
 
     if (!copy($php_build_dir . '/bin/' . $filename, "$dest/" . basename($filename))) {
-            echo "WARNING: couldn't copy $filename into the dist dir";
+        echo "WARNING: couldn't copy $filename into the dist dir";
     }
 }
 
@@ -435,8 +445,8 @@ function copy_dir($source, $dest)
 
 function copy_test_dir($directory, $dest)
 {
-    if(substr($directory,-1) == '/') {
-        $directory = substr($directory,0,-1);
+    if(substr($directory, -1) == '/') {
+        $directory = substr($directory, 0, -1);
     }
 
     if ($directory == 'tests' || $directory == 'examples') {
@@ -450,17 +460,17 @@ function copy_test_dir($directory, $dest)
 
     if(!file_exists($directory) || !is_dir($directory)) {
         echo "failed... $directory\n";
-        return FALSE;
+        return false;
     }
 
     $directory_list = opendir($directory);
 
-    while (FALSE !== ($file = readdir($directory_list))) {
+    while (false !== ($file = readdir($directory_list))) {
         $full_path = $directory . '/' . $file;
         if($file != '.' && $file != '..' && $file != '.svn' && is_dir($full_path)) {
             if ($file == 'tests' || $file == 'examples') {
                 if (!is_dir($dest . '/' . $full_path)) {
-                    mkdir($dest . '/' . $full_path , 0775, true);
+                    mkdir($dest . '/' . $full_path, 0775, true);
                 }
                 copy_dir($full_path, $dest . '/' . $full_path . '/');
                 continue;
@@ -540,8 +550,9 @@ if (!$use_pear_template) {
     foreach ($packages as $name => $version) {
         $filename = "$name-$version.tgz";
         $destfilename = "$dist_dir/PEAR/go-pear-bundle/$filename";
-        if (file_exists($destfilename))
+        if (file_exists($destfilename)) {
             continue;
+        }
         $url = "http://pear.php.net/get/$filename";
         echo "Downloading $name from $url\n";
         flush();
@@ -567,7 +578,7 @@ if (file_exists($snapshot_template)) {
         if (is_dir($item)) {
             if ($bi == 'dlls' || $bi == 'symbols') {
                 continue;
-            } else if ($bi == 'PEAR') {
+            } elseif ($bi == 'PEAR') {
                 if ($use_pear_template) {
                     /* copy to top level */
                     copy_dir($item, "$dist_dir/$bi");
@@ -602,4 +613,3 @@ if (file_exists($snapshot_template)) {
 }
 
 make_phar_dot_phar($dist_dir);
-?>

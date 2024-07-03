@@ -55,10 +55,10 @@ const ZEND_VM_KIND_GOTO   = 3;
 const ZEND_VM_KIND_HYBRID = 4;
 
 $vm_op_flags = array(
-    "ZEND_VM_OP_SPEC"         => 1<<0,
-    "ZEND_VM_OP_CONST"        => 1<<1,
-    "ZEND_VM_OP_TMPVAR"       => 1<<2,
-    "ZEND_VM_OP_TMPVARCV"     => 1<<3,
+    "ZEND_VM_OP_SPEC"         => 1 << 0,
+    "ZEND_VM_OP_CONST"        => 1 << 1,
+    "ZEND_VM_OP_TMPVAR"       => 1 << 2,
+    "ZEND_VM_OP_TMPVARCV"     => 1 << 3,
     "ZEND_VM_OP_MASK"         => 0xf0,
     "ZEND_VM_OP_NUM"          => 0x10,
     "ZEND_VM_OP_JMP_ADDR"     => 0x20,
@@ -71,13 +71,13 @@ $vm_op_flags = array(
     "ZEND_VM_OP_CONST_FETCH"  => 0x90,
     "ZEND_VM_OP_CACHE_SLOT"   => 0xa0,
 
-    "ZEND_VM_EXT_VAR_FETCH"   => 1<<16,
-    "ZEND_VM_EXT_ISSET"       => 1<<17,
-    "ZEND_VM_EXT_CACHE_SLOT"  => 1<<18,
-    "ZEND_VM_EXT_ARRAY_INIT"  => 1<<19,
-    "ZEND_VM_EXT_REF"         => 1<<20,
-    "ZEND_VM_EXT_FETCH_REF"   => 1<<21,
-    "ZEND_VM_EXT_DIM_WRITE"    => 1<<22,
+    "ZEND_VM_EXT_VAR_FETCH"   => 1 << 16,
+    "ZEND_VM_EXT_ISSET"       => 1 << 17,
+    "ZEND_VM_EXT_CACHE_SLOT"  => 1 << 18,
+    "ZEND_VM_EXT_ARRAY_INIT"  => 1 << 19,
+    "ZEND_VM_EXT_REF"         => 1 << 20,
+    "ZEND_VM_EXT_FETCH_REF"   => 1 << 21,
+    "ZEND_VM_EXT_DIM_WRITE"    => 1 << 22,
     "ZEND_VM_EXT_MASK"        => 0x0f000000,
     "ZEND_VM_EXT_NUM"         => 0x01000000,
     "ZEND_VM_EXT_LAST_CATCH"  => 0x02000000,
@@ -548,22 +548,25 @@ $line_no = 1;
 $used_extra_spec = array();
 
 // Writes $s into resulting executor
-function out($f, $s) {
+function out($f, $s)
+{
     global $line_no;
 
-    fputs($f,$s);
+    fputs($f, $s);
     $line_no += substr_count($s, "\n");
 }
 
 // Resets #line directives in resulting executor
-function out_line($f) {
+function out_line($f)
+{
     global $line_no, $executor_file;
 
-    fputs($f,"#line ".($line_no+1)." \"".$executor_file."\"\n");
+    fputs($f, "#line ".($line_no + 1)." \"".$executor_file."\"\n");
     ++$line_no;
 }
 
-function is_hot_helper($name) {
+function is_hot_helper($name)
+{
     global $helpers;
 
     if (isset($helpers[$name]["hot"])) {
@@ -574,7 +577,8 @@ function is_hot_helper($name) {
 }
 
 // Returns name of specialized helper
-function helper_name($name, $spec, $op1, $op2, $extra_spec) {
+function helper_name($name, $spec, $op1, $op2, $extra_spec)
+{
     global $prefix, $helpers;
 
     $extra = "";
@@ -586,13 +590,13 @@ function helper_name($name, $spec, $op1, $op2, $extra_spec) {
             if (($op1 == 'TMP' || $op1 == 'VAR') &&
                 isset($helpers[$name]["op1"]["TMPVAR"])) {
                 $op1 = "TMPVAR";
-            } else if (($op1 == 'TMP' || $op1 == 'VAR') &&
+            } elseif (($op1 == 'TMP' || $op1 == 'VAR') &&
                 isset($helpers[$name]["op1"]["TMPVARCV"])) {
                 $op1 = "TMPVARCV";
-            } else if ($op1 == 'CV' &&
+            } elseif ($op1 == 'CV' &&
                 isset($helpers[$name]["op1"]["TMPVARCV"])) {
                 $op1 = "TMPVARCV";
-            } else if (isset($helpers[$name]["op1"]["ANY"])) {
+            } elseif (isset($helpers[$name]["op1"]["ANY"])) {
                 $op1 = "ANY";
             }
         }
@@ -600,13 +604,13 @@ function helper_name($name, $spec, $op1, $op2, $extra_spec) {
             if (($op2 == 'TMP' || $op2 == 'VAR') &&
                 isset($helpers[$name]["op2"]["TMPVAR"])) {
                 $op2 = "TMPVAR";
-            } else if (($op2 == 'TMP' || $op2 == 'VAR') &&
+            } elseif (($op2 == 'TMP' || $op2 == 'VAR') &&
                 isset($helpers[$name]["op2"]["TMPVARCV"])) {
                 $op2 = "TMPVARCV";
-            } else if ($op2 == 'CV' &&
+            } elseif ($op2 == 'CV' &&
                 isset($helpers[$name]["op2"]["TMPVARCV"])) {
                 $op2 = "TMPVARCV";
-            } else if (isset($helpers[$name]["op2"]["ANY"])) {
+            } elseif (isset($helpers[$name]["op2"]["ANY"])) {
                 $op2 = "ANY";
             }
         }
@@ -619,7 +623,8 @@ function helper_name($name, $spec, $op1, $op2, $extra_spec) {
     return $name . ($spec ? "_SPEC" : "") . $prefix[$op1] . $prefix[$op2] . $extra;
 }
 
-function opcode_name($name, $spec, $op1, $op2, $extra_spec) {
+function opcode_name($name, $spec, $op1, $op2, $extra_spec)
+{
     global $prefix, $opnames, $opcodes;
 
     $extra = "";
@@ -632,15 +637,15 @@ function opcode_name($name, $spec, $op1, $op2, $extra_spec) {
             if (($op1 == 'TMP' || $op1 == 'VAR') &&
                 isset($opcode["op1"]["TMPVAR"])) {
                 $op1 = "TMPVAR";
-            } else if (($op1 == 'TMP' || $op1 == 'VAR') &&
+            } elseif (($op1 == 'TMP' || $op1 == 'VAR') &&
                 isset($opcode["op1"]["TMPVARCV"])) {
                 $op1 = "TMPVARCV";
-            } else if ($op1 == 'CV' &&
+            } elseif ($op1 == 'CV' &&
                 isset($opcode["op1"]["TMPVARCV"])) {
                 $op1 = "TMPVARCV";
-            } else if (isset($opcode["op1"]["ANY"])) {
+            } elseif (isset($opcode["op1"]["ANY"])) {
                 $op1 = "ANY";
-            } else if ($spec) {
+            } elseif ($spec) {
                 /* dispatch to invalid handler from unreachable code */
                 return "ZEND_NULL";
             }
@@ -649,15 +654,15 @@ function opcode_name($name, $spec, $op1, $op2, $extra_spec) {
             if (($op2 == 'TMP' || $op2 == 'VAR') &&
                 isset($opcode["op2"]["TMPVAR"])) {
                 $op2 = "TMPVAR";
-            } else if (($op2 == 'TMP' || $op2 == 'VAR') &&
+            } elseif (($op2 == 'TMP' || $op2 == 'VAR') &&
                 isset($opcode["op2"]["TMPVARCV"])) {
                 $op2 = "TMPVARCV";
-            } else if ($op2 == 'CV' &&
+            } elseif ($op2 == 'CV' &&
                 isset($opcode["op2"]["TMPVARCV"])) {
                 $op2 = "TMPVARCV";
-            } else if (isset($opcode["op2"]["ANY"])) {
+            } elseif (isset($opcode["op2"]["ANY"])) {
                 $op2 = "ANY";
-            } else if ($spec) {
+            } elseif ($spec) {
                 /* dispatch to unknown handler in unreachable code */
                 return "ZEND_NULL";
             }
@@ -672,7 +677,8 @@ function opcode_name($name, $spec, $op1, $op2, $extra_spec) {
 }
 
 // Formats condition, protecting it by parentheses when needed.
-function format_condition($condition) {
+function format_condition($condition)
+{
     if ($condition === "") {
         throw new InvalidArgumentException("A non empty string condition was expected.");
     }
@@ -685,22 +691,23 @@ function format_condition($condition) {
 }
 
 // Generates code for opcode handler or helper
-function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) {
+function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec = null)
+{
     global $op1_type, $op2_type, $op1_get_zval_ptr, $op2_get_zval_ptr,
-        $op1_get_zval_ptr_deref, $op2_get_zval_ptr_deref,
-        $op1_get_zval_ptr_undef, $op2_get_zval_ptr_undef,
-        $op1_get_zval_ptr_ptr, $op2_get_zval_ptr_ptr,
-        $op1_get_zval_ptr_ptr_undef, $op2_get_zval_ptr_ptr_undef,
-        $op1_get_obj_zval_ptr, $op2_get_obj_zval_ptr,
-        $op1_get_obj_zval_ptr_undef, $op2_get_obj_zval_ptr_undef,
-        $op1_get_obj_zval_ptr_deref, $op2_get_obj_zval_ptr_deref,
-        $op1_get_obj_zval_ptr_ptr, $op2_get_obj_zval_ptr_ptr,
-        $op1_get_obj_zval_ptr_ptr_undef, $op2_get_obj_zval_ptr_ptr_undef,
-        $op1_free_op, $op2_free_op, $op1_free_op_if_var, $op2_free_op_if_var,
-        $prefix,
-        $op_data_type, $op_data_get_zval_ptr, $op_data_get_zval_ptr_undef,
-        $op_data_get_zval_ptr_deref, $op_data_get_zval_ptr_ptr,
-        $op_data_free_op;
+    $op1_get_zval_ptr_deref, $op2_get_zval_ptr_deref,
+    $op1_get_zval_ptr_undef, $op2_get_zval_ptr_undef,
+    $op1_get_zval_ptr_ptr, $op2_get_zval_ptr_ptr,
+    $op1_get_zval_ptr_ptr_undef, $op2_get_zval_ptr_ptr_undef,
+    $op1_get_obj_zval_ptr, $op2_get_obj_zval_ptr,
+    $op1_get_obj_zval_ptr_undef, $op2_get_obj_zval_ptr_undef,
+    $op1_get_obj_zval_ptr_deref, $op2_get_obj_zval_ptr_deref,
+    $op1_get_obj_zval_ptr_ptr, $op2_get_obj_zval_ptr_ptr,
+    $op1_get_obj_zval_ptr_ptr_undef, $op2_get_obj_zval_ptr_ptr_undef,
+    $op1_free_op, $op2_free_op, $op1_free_op_if_var, $op2_free_op_if_var,
+    $prefix,
+    $op_data_type, $op_data_get_zval_ptr, $op_data_get_zval_ptr_undef,
+    $op_data_get_zval_ptr_deref, $op_data_get_zval_ptr_ptr,
+    $op_data_free_op;
 
     // Specializing
     $specialized_replacements = array(
@@ -730,10 +737,10 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
         "/FREE_OP2\(\)/" => $op2_free_op[$op2],
         "/FREE_OP1_IF_VAR\(\)/" => $op1_free_op_if_var[$op1],
         "/FREE_OP2_IF_VAR\(\)/" => $op2_free_op_if_var[$op2],
-        "/\!ZEND_VM_SPEC/m" => ($op1!="ANY"||$op2!="ANY"||$extra_spec)?"0":"1",
-        "/ZEND_VM_SPEC/m" => ($op1!="ANY"||$op2!="ANY"||$extra_spec)?"1":"0",
-        "/ZEND_VM_C_LABEL\(\s*([A-Za-z_]*)\s*\)/m" => "\\1".(($spec && $kind != ZEND_VM_KIND_CALL)?("_SPEC".$prefix[$op1].$prefix[$op2].extra_spec_name($extra_spec)):""),
-        "/ZEND_VM_C_GOTO\(\s*([A-Za-z_]*)\s*\)/m" => "goto \\1".(($spec && $kind != ZEND_VM_KIND_CALL)?("_SPEC".$prefix[$op1].$prefix[$op2].extra_spec_name($extra_spec)):""),
+        "/\!ZEND_VM_SPEC/m" => ($op1 != "ANY" || $op2 != "ANY" || $extra_spec) ? "0" : "1",
+        "/ZEND_VM_SPEC/m" => ($op1 != "ANY" || $op2 != "ANY" || $extra_spec) ? "1" : "0",
+        "/ZEND_VM_C_LABEL\(\s*([A-Za-z_]*)\s*\)/m" => "\\1".(($spec && $kind != ZEND_VM_KIND_CALL) ? ("_SPEC".$prefix[$op1].$prefix[$op2].extra_spec_name($extra_spec)) : ""),
+        "/ZEND_VM_C_GOTO\(\s*([A-Za-z_]*)\s*\)/m" => "goto \\1".(($spec && $kind != ZEND_VM_KIND_CALL) ? ("_SPEC".$prefix[$op1].$prefix[$op2].extra_spec_name($extra_spec)) : ""),
         "/^#(\s*)if\s+1\s*\\|\\|.*[^\\\\]$/m" => "#\\1if 1",
         "/^#(\s*)if\s+0\s*&&.*[^\\\\]$/m" => "#\\1if 0",
         "/^#(\s*)elif\s+1\s*\\|\\|.*[^\\\\]$/m" => "#\\1elif 1",
@@ -749,21 +756,21 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
         "/ZEND_VM_SMART_BRANCH\(\s*([^,)]*)\s*,\s*([^)]*)\s*\)/" => isset($extra_spec['SMART_BRANCH']) ?
             ($extra_spec['SMART_BRANCH'] == 1 ?
                     "ZEND_VM_SMART_BRANCH_JMPZ(\\1, \\2)"
-                :	($extra_spec['SMART_BRANCH'] == 2 ?
+                : ($extra_spec['SMART_BRANCH'] == 2 ?
                         "ZEND_VM_SMART_BRANCH_JMPNZ(\\1, \\2)" : "ZEND_VM_SMART_BRANCH_NONE(\\1, \\2)"))
-            :	"ZEND_VM_SMART_BRANCH(\\1, \\2)",
+            : "ZEND_VM_SMART_BRANCH(\\1, \\2)",
         "/ZEND_VM_SMART_BRANCH_TRUE\(\s*\)/" => isset($extra_spec['SMART_BRANCH']) ?
             ($extra_spec['SMART_BRANCH'] == 1 ?
                     "ZEND_VM_SMART_BRANCH_TRUE_JMPZ()"
-                :	($extra_spec['SMART_BRANCH'] == 2 ?
+                : ($extra_spec['SMART_BRANCH'] == 2 ?
                         "ZEND_VM_SMART_BRANCH_TRUE_JMPNZ()" : "ZEND_VM_SMART_BRANCH_TRUE_NONE()"))
-            :	"ZEND_VM_SMART_BRANCH_TRUE()",
+            : "ZEND_VM_SMART_BRANCH_TRUE()",
         "/ZEND_VM_SMART_BRANCH_FALSE\(\s*\)/" => isset($extra_spec['SMART_BRANCH']) ?
             ($extra_spec['SMART_BRANCH'] == 1 ?
                     "ZEND_VM_SMART_BRANCH_FALSE_JMPZ()"
-                :	($extra_spec['SMART_BRANCH'] == 2 ?
+                : ($extra_spec['SMART_BRANCH'] == 2 ?
                         "ZEND_VM_SMART_BRANCH_FALSE_JMPNZ()" : "ZEND_VM_SMART_BRANCH_FALSE_NONE()"))
-            :	"ZEND_VM_SMART_BRANCH_FALSE()",
+            : "ZEND_VM_SMART_BRANCH_FALSE()",
         "/opline->extended_value\s*&\s*ZEND_ISEMPTY/" => isset($extra_spec['ISSET']) ?
             ($extra_spec['ISSET'] == 0 ? "0" : "1")
             : "\\0",
@@ -796,10 +803,10 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
                     "/ZEND_VM_DISPATCH_TO_HANDLER\(\s*([A-Z_]*)\s*\)/m",
                     "/ZEND_VM_DISPATCH_TO_HELPER\(\s*([A-Za-z_]*)\s*(,[^)]*)?\)/m",
                 ),
-                function($matches) use ($spec, $prefix, $op1, $op2, $extra_spec) {
+                function ($matches) use ($spec, $prefix, $op1, $op2, $extra_spec) {
                     if (strncasecmp($matches[0], "EXECUTE_DATA", strlen("EXECUTE_DATA")) == 0) {
                         return "execute_data";
-                    } else if (strncasecmp($matches[0], "ZEND_VM_DISPATCH_TO_HANDLER", strlen("ZEND_VM_DISPATCH_TO_HANDLER")) == 0) {
+                    } elseif (strncasecmp($matches[0], "ZEND_VM_DISPATCH_TO_HANDLER", strlen("ZEND_VM_DISPATCH_TO_HANDLER")) == 0) {
                         global $opcodes, $opnames;
 
                         $name = $matches[1];
@@ -823,7 +830,8 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
                         return "ZEND_VM_TAIL_CALL(" . helper_name($matches[1], $spec, $op1, $op2, $extra_spec) . "(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU))";
                     }
                 },
-                $code);
+                $code
+            );
             break;
         case ZEND_VM_KIND_CALL:
             $code = preg_replace_callback(
@@ -832,10 +840,10 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
                     "/ZEND_VM_DISPATCH_TO_HANDLER\(\s*([A-Z_]*)\s*\)/m",
                     "/ZEND_VM_DISPATCH_TO_HELPER\(\s*([A-Za-z_]*)\s*(,[^)]*)?\)/m",
                 ),
-                function($matches) use ($spec, $prefix, $op1, $op2, $extra_spec, $name) {
+                function ($matches) use ($spec, $prefix, $op1, $op2, $extra_spec, $name) {
                     if (strncasecmp($matches[0], "EXECUTE_DATA", strlen("EXECUTE_DATA")) == 0) {
                         return "execute_data";
-                    } else if (strncasecmp($matches[0], "ZEND_VM_DISPATCH_TO_HANDLER", strlen("ZEND_VM_DISPATCH_TO_HANDLER")) == 0) {
+                    } elseif (strncasecmp($matches[0], "ZEND_VM_DISPATCH_TO_HANDLER", strlen("ZEND_VM_DISPATCH_TO_HANDLER")) == 0) {
                         global $opcodes, $opnames;
 
                         $handler = $matches[1];
@@ -857,7 +865,8 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
                         return "ZEND_VM_TAIL_CALL(" . helper_name($matches[1], $spec, $op1, $op2, $extra_spec) . "(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU))";
                     }
                 },
-                $code);
+                $code
+            );
             break;
         case ZEND_VM_KIND_SWITCH:
             $code = preg_replace_callback(
@@ -866,10 +875,10 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
                     "/ZEND_VM_DISPATCH_TO_HANDLER\(\s*([A-Z_]*)\s*\)/m",
                     "/ZEND_VM_DISPATCH_TO_HELPER\(\s*([A-Za-z_]*)\s*(,[^)]*)?\)/m",
                 ),
-                function($matches) use ($spec, $prefix, $op1, $op2, $extra_spec) {
+                function ($matches) use ($spec, $prefix, $op1, $op2, $extra_spec) {
                     if (strncasecmp($matches[0], "EXECUTE_DATA", strlen("EXECUTE_DATA")) == 0) {
                         return "execute_data";
-                    } else if (strncasecmp($matches[0], "ZEND_VM_DISPATCH_TO_HANDLER", strlen("ZEND_VM_DISPATCH_TO_HANDLER")) == 0) {
+                    } elseif (strncasecmp($matches[0], "ZEND_VM_DISPATCH_TO_HANDLER", strlen("ZEND_VM_DISPATCH_TO_HANDLER")) == 0) {
                         return "goto " . opcode_name($matches[1], $spec, $op1, $op2, $extra_spec) . "_LABEL";
                     } else {
                         // ZEND_VM_DISPATCH_TO_HELPER
@@ -881,7 +890,8 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
                         return "goto " . helper_name($matches[1], $spec, $op1, $op2, $extra_spec);
                     }
                 },
-                    $code);
+                $code
+            );
             break;
         case ZEND_VM_KIND_GOTO:
             $code = preg_replace_callback(
@@ -890,10 +900,10 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
                     "/ZEND_VM_DISPATCH_TO_HANDLER\(\s*([A-Z_]*)\s*\)/m",
                     "/ZEND_VM_DISPATCH_TO_HELPER\(\s*([A-Za-z_]*)\s*(,[^)]*)?\)/m",
                 ),
-                function($matches) use ($spec, $prefix, $op1, $op2, $extra_spec) {
+                function ($matches) use ($spec, $prefix, $op1, $op2, $extra_spec) {
                     if (strncasecmp($matches[0], "EXECUTE_DATA", strlen("EXECUTE_DATA")) == 0) {
                         return "execute_data";
-                    } else if (strncasecmp($matches[0], "ZEND_VM_DISPATCH_TO_HANDLER", strlen("ZEND_VM_DISPATCH_TO_HANDLER")) == 0) {
+                    } elseif (strncasecmp($matches[0], "ZEND_VM_DISPATCH_TO_HANDLER", strlen("ZEND_VM_DISPATCH_TO_HANDLER")) == 0) {
                         return "goto " . opcode_name($matches[1], $spec, $op1, $op2, $extra_spec) . "_LABEL";
                     } else {
                         // ZEND_VM_DISPATCH_TO_HELPER
@@ -905,7 +915,8 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
                         return "goto " . helper_name($matches[1], $spec, $op1, $op2, $extra_spec);
                     }
                 },
-                    $code);
+                $code
+            );
             break;
     }
 
@@ -918,7 +929,8 @@ function gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec=null) 
     out($f, $code);
 }
 
-function skip_extra_spec_function($op1, $op2, $extra_spec) {
+function skip_extra_spec_function($op1, $op2, $extra_spec)
+{
     global $commutative_order;
 
     if (isset($extra_spec["NO_CONST_CONST"]) &&
@@ -936,7 +948,8 @@ function skip_extra_spec_function($op1, $op2, $extra_spec) {
     return false;
 }
 
-function is_hot_handler($hot, $op1, $op2, $extra_spec) {
+function is_hot_handler($hot, $op1, $op2, $extra_spec)
+{
     if (isset($extra_spec["SMART_BRANCH"]) && $extra_spec["SMART_BRANCH"] == 0) {
         return false;
     }
@@ -945,45 +958,48 @@ function is_hot_handler($hot, $op1, $op2, $extra_spec) {
     }
     if ($hot === 'HOT_' || $hot === 'INLINE_') {
         return true;
-    } else if ($hot === 'HOT_NOCONST_') {
+    } elseif ($hot === 'HOT_NOCONST_') {
         return ($op1 !== 'CONST');
-    } else if ($hot === 'HOT_NOCONSTCONST_') {
+    } elseif ($hot === 'HOT_NOCONSTCONST_') {
         return (($op1 !== 'CONST') || ($op2 !== 'CONST')) ;
-    } else if ($hot === 'HOT_OBJ_') {
+    } elseif ($hot === 'HOT_OBJ_') {
         return (($op1 === 'UNUSED') || ($op1 === 'CV')) && ($op2 === 'CONST');
-    } else if ($hot === 'HOT_SEND_') {
+    } elseif ($hot === 'HOT_SEND_') {
         return !empty($extra_spec["QUICK_ARG"]);
     } else {
         return false;
     }
 }
 
-function is_cold_handler($hot, $op1, $op2, $extra_spec) {
+function is_cold_handler($hot, $op1, $op2, $extra_spec)
+{
     if ($hot === 'COLD_') {
         return true;
-    } else if (isset($extra_spec["OBSERVER"]) && $extra_spec["OBSERVER"] == 1) {
+    } elseif (isset($extra_spec["OBSERVER"]) && $extra_spec["OBSERVER"] == 1) {
         return true;
-    } else if ($hot === 'COLD_CONST_') {
+    } elseif ($hot === 'COLD_CONST_') {
         return ($op1 === 'CONST');
-    } else if ($hot === 'COLD_CONSTCONST_') {
+    } elseif ($hot === 'COLD_CONSTCONST_') {
         return ($op1 === 'CONST' && $op2 === 'CONST');
-    } else if ($hot === 'HOT_OBJ_') {
+    } elseif ($hot === 'HOT_OBJ_') {
         return ($op1 === 'CONST');
-    } else if ($hot === 'HOT_NOCONST_') {
+    } elseif ($hot === 'HOT_NOCONST_') {
         return ($op1 === 'CONST');
-    } else if ($hot === 'HOT_NOCONSTCONST_') {
+    } elseif ($hot === 'HOT_NOCONSTCONST_') {
         return ($op1 === 'CONST' && $op2 === 'CONST');
     } else {
         return false;
     }
 }
 
-function is_inline_hybrid_handler($name, $hot, $op1, $op2, $extra_spec) {
+function is_inline_hybrid_handler($name, $hot, $op1, $op2, $extra_spec)
+{
     return ($hot === 'INLINE_');
 }
 
 // Generates opcode handler
-function gen_handler($f, $spec, $kind, $name, $op1, $op2, $use, $code, $lineno, $opcode, $extra_spec = null, &$switch_labels = array()) {
+function gen_handler($f, $spec, $kind, $name, $op1, $op2, $use, $code, $lineno, $opcode, $extra_spec = null, &$switch_labels = array())
+{
     global $definition_file, $prefix, $opnames, $gen_order;
 
     static $used_observer_handlers = array();
@@ -1047,7 +1063,7 @@ function gen_handler($f, $spec, $kind, $name, $op1, $op2, $use, $code, $lineno, 
 
     // Generate opcode handler's entry point according to selected threading model
     $additional_func = false;
-    $spec_name = $name.($spec?"_SPEC":"").$prefix[$op1].$prefix[$op2].($spec?extra_spec_name($extra_spec):"");
+    $spec_name = $name.($spec ? "_SPEC" : "").$prefix[$op1].$prefix[$op2].($spec ? extra_spec_name($extra_spec) : "");
     switch ($kind) {
         case ZEND_VM_KIND_HYBRID:
             if (is_inline_hybrid_handler($name, $opcode["hot"], $op1, $op2, $extra_spec)) {
@@ -1081,34 +1097,34 @@ function gen_handler($f, $spec, $kind, $name, $op1, $op2, $use, $code, $lineno, 
         case ZEND_VM_KIND_CALL:
             if ($opcode["hot"] && ZEND_VM_KIND == ZEND_VM_KIND_HYBRID && is_hot_handler($opcode["hot"], $op1, $op2, $extra_spec)) {
                 if (isset($opcode["use"])) {
-                    out($f,"static zend_always_inline ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_INLINE_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
+                    out($f, "static zend_always_inline ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_INLINE_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
                     $additional_func = true;
                 } else {
-                    out($f,"static ZEND_VM_HOT ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
+                    out($f, "static ZEND_VM_HOT ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
                 }
-            } else if ($opcode["hot"] && is_cold_handler($opcode["hot"], $op1, $op2, $extra_spec)) {
-                out($f,"static ZEND_VM_COLD ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
+            } elseif ($opcode["hot"] && is_cold_handler($opcode["hot"], $op1, $op2, $extra_spec)) {
+                out($f, "static ZEND_VM_COLD ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
             } else {
-                out($f,"static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
+                out($f, "static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
             }
             break;
         case ZEND_VM_KIND_SWITCH:
             if ($spec) {
                 $cur = $switch_labels ? end($switch_labels) + 1 : 0;
-                out($f,"case $cur: /* $spec_name */");
+                out($f, "case $cur: /* $spec_name */");
                 $switch_labels[$spec_name] = $cur;
             } else {
-                out($f,"case ".$name.":");
+                out($f, "case ".$name.":");
             }
             if ($use) {
                 // This handler is used by other handlers. We will add label to call it.
-                out($f," {$spec_name}_LABEL: ZEND_ATTRIBUTE_UNUSED_LABEL\n");
+                out($f, " {$spec_name}_LABEL: ZEND_ATTRIBUTE_UNUSED_LABEL\n");
             } else {
-                out($f,"\n");
+                out($f, "\n");
             }
             break;
         case ZEND_VM_KIND_GOTO:
-            out($f,"{$spec_name}_LABEL: ZEND_VM_GUARD($spec_name);\n");
+            out($f, "{$spec_name}_LABEL: ZEND_VM_GUARD($spec_name);\n");
             break;
     }
 
@@ -1116,16 +1132,17 @@ function gen_handler($f, $spec, $kind, $name, $op1, $op2, $use, $code, $lineno, 
     gen_code($f, $spec, $kind, $code, $op1, $op2, $name, $extra_spec);
 
     if ($additional_func) {
-        out($f,"static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
-        out($f,"{\n");
-        out($f,"\tZEND_VM_TAIL_CALL({$spec_name}_INLINE_HANDLER(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU));\n");
-        out($f,"}\n");
-        out($f,"\n");
+        out($f, "static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL {$spec_name}_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
+        out($f, "{\n");
+        out($f, "\tZEND_VM_TAIL_CALL({$spec_name}_INLINE_HANDLER(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU));\n");
+        out($f, "}\n");
+        out($f, "\n");
     }
 }
 
 // Generates helper
-function gen_helper($f, $spec, $kind, $name, $op1, $op2, $param, $code, $lineno, $inline, $cold = false, $hot = false, $extra_spec = null) {
+function gen_helper($f, $spec, $kind, $name, $op1, $op2, $param, $code, $lineno, $inline, $cold = false, $hot = false, $extra_spec = null)
+{
     global $definition_file, $prefix;
 
     if ($kind == ZEND_VM_KIND_HYBRID && !$hot) {
@@ -1140,7 +1157,7 @@ function gen_helper($f, $spec, $kind, $name, $op1, $op2, $param, $code, $lineno,
         out($f, "#line $lineno \"$definition_file\"\n");
     }
 
-    $spec_name = $name.($spec?"_SPEC":"").$prefix[$op1].$prefix[$op2].($spec?extra_spec_name($extra_spec):"");
+    $spec_name = $name.($spec ? "_SPEC" : "").$prefix[$op1].$prefix[$op2].($spec ? extra_spec_name($extra_spec) : "");
 
     // Generate helper's entry point according to selected threading model
     switch ($kind) {
@@ -1160,10 +1177,10 @@ function gen_helper($f, $spec, $kind, $name, $op1, $op2, $param, $code, $lineno,
                 $zend_fastcall = " ZEND_FASTCALL";
             }
             if ($param == null) {
-              // Helper without parameters
+                // Helper without parameters
                 out($f, "static$zend_attributes ZEND_OPCODE_HANDLER_RET$zend_fastcall $spec_name(ZEND_OPCODE_HANDLER_ARGS)\n");
             } else {
-              // Helper with parameter
+                // Helper with parameter
                 out($f, "static$zend_attributes ZEND_OPCODE_HANDLER_RET$zend_fastcall $spec_name($param ZEND_OPCODE_HANDLER_ARGS_DC)\n");
             }
             break;
@@ -1180,31 +1197,33 @@ function gen_helper($f, $spec, $kind, $name, $op1, $op2, $param, $code, $lineno,
 }
 
 
-function gen_null_label($f, $kind, $prolog) {
+function gen_null_label($f, $kind, $prolog)
+{
     switch ($kind) {
         case ZEND_VM_KIND_CALL:
-            out($f,$prolog."ZEND_NULL_HANDLER,\n");
+            out($f, $prolog."ZEND_NULL_HANDLER,\n");
             break;
         case ZEND_VM_KIND_SWITCH:
-            out($f,$prolog."(void*)(uintptr_t)-1,\n");
+            out($f, $prolog."(void*)(uintptr_t)-1,\n");
             break;
         case ZEND_VM_KIND_GOTO:
-            out($f,$prolog."(void*)&&ZEND_NULL_LABEL,\n");
+            out($f, $prolog."(void*)&&ZEND_NULL_LABEL,\n");
             break;
     }
 }
 
 // Generates array of opcode handlers (specialized or unspecialized)
-function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()) {
+function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array())
+{
     global $opcodes, $opnames, $op_types, $prefix, $op_types_ex;
 
     $list = [];
     $next = 0;
     $label = 0;
     if ($spec) {
-      // Emit labels for specialized executor
+        // Emit labels for specialized executor
 
-      // For each opcode in opcode number order
+        // For each opcode in opcode number order
         foreach ($opcodes as $num => $dsc) {
             if (isset($dsc['alias'])) {
                 $specs[$num] = $specs[$opnames[$dsc['alias']]];
@@ -1252,8 +1271,8 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
                 unset($specs[$num]);
             }
 
-            $foreach_op1 = function($do) use ($dsc, $op_types) {
-                return function($_, $op2) use ($do, $dsc, $op_types) {
+            $foreach_op1 = function ($do) use ($dsc, $op_types) {
+                return function ($_, $op2) use ($do, $dsc, $op_types) {
                     // For each op1.op_type except ANY
                     foreach ($op_types as $op1) {
                         if ($op1 != "ANY") {
@@ -1261,12 +1280,12 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
                                 if ($op1 == "TMP" || $op1 == "VAR") {
                                     if (isset($dsc["op1"]["TMPVAR"])) {
                                         $op1 = "TMPVAR";
-                                    } else if (isset($dsc["op1"]["TMPVARCV"])) {
+                                    } elseif (isset($dsc["op1"]["TMPVARCV"])) {
                                         $op1 = "TMPVARCV";
                                     } else {
                                         $op1 = "ANY";
                                     }
-                                } else if ($op1 == "CV" && isset($dsc["op1"]["TMPVARCV"])) {
+                                } elseif ($op1 == "CV" && isset($dsc["op1"]["TMPVARCV"])) {
                                     $op1 = "TMPVARCV";
                                 } else {
                                     // Try to use unspecialized handler
@@ -1278,8 +1297,8 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
                     }
                 };
             };
-            $foreach_op2 = function($do) use ($dsc, $op_types) {
-                return function($op1, $_) use ($do, $dsc, $op_types) {
+            $foreach_op2 = function ($do) use ($dsc, $op_types) {
+                return function ($op1, $_) use ($do, $dsc, $op_types) {
                     // For each op2.op_type except ANY
                     foreach ($op_types as $op2) {
                         if ($op2 != "ANY") {
@@ -1287,12 +1306,12 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
                                 if ($op2 == "TMP" || $op2 == "VAR") {
                                     if (isset($dsc["op2"]["TMPVAR"])) {
                                         $op2 = "TMPVAR";
-                                    } else if (isset($dsc["op2"]["TMPVARCV"])) {
+                                    } elseif (isset($dsc["op2"]["TMPVARCV"])) {
                                         $op2 = "TMPVARCV";
                                     } else {
                                         $op2 = "ANY";
                                     }
-                                } else if ($op2 == "CV" && isset($dsc["op2"]["TMPVARCV"])) {
+                                } elseif ($op2 == "CV" && isset($dsc["op2"]["TMPVARCV"])) {
                                     $op2 = "TMPVARCV";
                                 } else {
                                     // Try to use unspecialized handler
@@ -1304,8 +1323,8 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
                     }
                 };
             };
-            $foreach_op_data = function($do) use ($dsc, $op_types) {
-                return function($op1, $op2, $extra_spec = array()) use ($do, $dsc, $op_types) {
+            $foreach_op_data = function ($do) use ($dsc, $op_types) {
+                return function ($op1, $op2, $extra_spec = array()) use ($do, $dsc, $op_types) {
                     // For each op_data.op_type except ANY
                     foreach ($op_types as $op_data) {
                         if ($op_data != "ANY") {
@@ -1313,13 +1332,13 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
                                 if ($op_data == "TMP" || $op_data == "VAR") {
                                     if (isset($dsc["spec"]["OP_DATA"]["TMPVAR"])) {
                                         $op_data = "TMPVAR";
-                                    } else if (isset($dsc["spec"]["OP_DATA"]["TMPVARCV"])) {
+                                    } elseif (isset($dsc["spec"]["OP_DATA"]["TMPVARCV"])) {
                                         $op_data = "TMPVARCV";
                                     } else {
                                         // Try to use unspecialized handler
                                         $op_data = "ANY";
                                     }
-                                } else if ($op_data == "CV" && isset($dsc["OP_DATA"]["TMPVARCV"])) {
+                                } elseif ($op_data == "CV" && isset($dsc["OP_DATA"]["TMPVARCV"])) {
                                     $op_data = "TMPVARCV";
                                 } else {
                                     // Try to use unspecialized handler
@@ -1331,8 +1350,8 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
                     }
                 };
             };
-            $foreach_extra_spec = function($do, $spec) use ($dsc) {
-                return function($op1, $op2, $extra_spec = array()) use ($do, $spec, $dsc) {
+            $foreach_extra_spec = function ($do, $spec) use ($dsc) {
+                return function ($op1, $op2, $extra_spec = array()) use ($do, $spec, $dsc) {
                     foreach ($dsc["spec"][$spec] as $val) {
                         $do($op1, $op2, array($spec => $val) + $extra_spec);
                     }
@@ -1385,13 +1404,13 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
                     $spec_name = $dsc["op"]."_SPEC".$prefix[$op1].$prefix[$op2].extra_spec_name($extra_spec);
                     switch ($kind) {
                         case ZEND_VM_KIND_CALL:
-                            out($f,"$prolog{$spec_name}_HANDLER,\n");
+                            out($f, "$prolog{$spec_name}_HANDLER,\n");
                             break;
                         case ZEND_VM_KIND_SWITCH:
-                            out($f,$prolog."(void*)(uintptr_t)$switch_labels[$spec_name],\n");
+                            out($f, $prolog."(void*)(uintptr_t)$switch_labels[$spec_name],\n");
                             break;
                         case ZEND_VM_KIND_GOTO:
-                            out($f,$prolog."(void*)&&{$spec_name}_LABEL,\n");
+                            out($f, $prolog."(void*)&&{$spec_name}_LABEL,\n");
                             break;
                     }
                     $list[$label] = $spec_name;
@@ -1424,22 +1443,22 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
             $do($def_op1_type, $def_op2_type);
         }
     } else {
-      // Emit labels for unspecialized executor
+        // Emit labels for unspecialized executor
 
-      // For each opcode in opcode number order
+        // For each opcode in opcode number order
         foreach ($opcodes as $num => $dsc) {
             while ($next != $num) {
-              // If some opcode numbers are not used then fill hole with pointers
-              // to handler of undefined opcode
+                // If some opcode numbers are not used then fill hole with pointers
+                // to handler of undefined opcode
                 switch ($kind) {
                     case ZEND_VM_KIND_CALL:
-                        out($f,$prolog."ZEND_NULL_HANDLER,\n");
+                        out($f, $prolog."ZEND_NULL_HANDLER,\n");
                         break;
                     case ZEND_VM_KIND_SWITCH:
-                        out($f,$prolog."(void*)(uintptr_t)-1,\n");
+                        out($f, $prolog."(void*)(uintptr_t)-1,\n");
                         break;
                     case ZEND_VM_KIND_GOTO:
-                        out($f,$prolog."(void*)&&ZEND_NULL_LABEL,\n");
+                        out($f, $prolog."(void*)&&ZEND_NULL_LABEL,\n");
                         break;
                 }
                 $next++;
@@ -1447,43 +1466,43 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
             if ($num >= 256) {
                 continue;
             }
-            $next = $num+1;
+            $next = $num + 1;
 
             if (isset($dsc['alias']) && $kind != ZEND_VM_KIND_SWITCH) {
                 // Emit pointer to unspecialized handler
                 switch ($kind) {
-                case ZEND_VM_KIND_CALL:
-                    out($f,$prolog.$dsc['alias']."_HANDLER,\n");
-                    break;
-                case ZEND_VM_KIND_GOTO:
-                    out($f,$prolog."(void*)&&".$dsc['alias']."_LABEL,\n");
-                    break;
+                    case ZEND_VM_KIND_CALL:
+                        out($f, $prolog.$dsc['alias']."_HANDLER,\n");
+                        break;
+                    case ZEND_VM_KIND_GOTO:
+                        out($f, $prolog."(void*)&&".$dsc['alias']."_LABEL,\n");
+                        break;
                 }
                 $list[] = $dsc["op"];
-            } else if ($dsc["code"]) { //ugly trick for ZEND_VM_DEFINE_OP
+            } elseif ($dsc["code"]) { //ugly trick for ZEND_VM_DEFINE_OP
                 // Emit pointer to unspecialized handler
                 switch ($kind) {
-                case ZEND_VM_KIND_CALL:
-                    out($f,$prolog.$dsc["op"]."_HANDLER,\n");
-                    break;
-                case ZEND_VM_KIND_SWITCH:
-                    out($f,$prolog."(void*)(uintptr_t)".((string)$num).",\n");
-                    break;
-                case ZEND_VM_KIND_GOTO:
-                    out($f,$prolog."(void*)&&".$dsc["op"]."_LABEL,\n");
-                    break;
+                    case ZEND_VM_KIND_CALL:
+                        out($f, $prolog.$dsc["op"]."_HANDLER,\n");
+                        break;
+                    case ZEND_VM_KIND_SWITCH:
+                        out($f, $prolog."(void*)(uintptr_t)".((string)$num).",\n");
+                        break;
+                    case ZEND_VM_KIND_GOTO:
+                        out($f, $prolog."(void*)&&".$dsc["op"]."_LABEL,\n");
+                        break;
                 }
                 $list[] = $dsc["op"];
             } else {
                 switch ($kind) {
                     case ZEND_VM_KIND_CALL:
-                        out($f,$prolog."ZEND_NULL_HANDLER,\n");
+                        out($f, $prolog."ZEND_NULL_HANDLER,\n");
                         break;
                     case ZEND_VM_KIND_SWITCH:
-                        out($f,$prolog."(void*)(uintptr_t)-1,\n");
+                        out($f, $prolog."(void*)(uintptr_t)-1,\n");
                         break;
                     case ZEND_VM_KIND_GOTO:
-                        out($f,$prolog."(void*)&&ZEND_NULL_LABEL,\n");
+                        out($f, $prolog."(void*)&&ZEND_NULL_LABEL,\n");
                         break;
                 }
                 $list[] = null;
@@ -1494,13 +1513,13 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
     // Emit last handler's label (undefined opcode)
     switch ($kind) {
         case ZEND_VM_KIND_CALL:
-            out($f,$prolog."ZEND_NULL_HANDLER\n");
+            out($f, $prolog."ZEND_NULL_HANDLER\n");
             break;
         case ZEND_VM_KIND_SWITCH:
-            out($f,$prolog."(void*)(uintptr_t)-1\n");
+            out($f, $prolog."(void*)(uintptr_t)-1\n");
             break;
         case ZEND_VM_KIND_GOTO:
-            out($f,$prolog."(void*)&&ZEND_NULL_LABEL\n");
+            out($f, $prolog."(void*)&&ZEND_NULL_LABEL\n");
             break;
     }
     $specs[$num + 1] = "$label";
@@ -1517,7 +1536,8 @@ function gen_labels($f, $spec, $kind, $prolog, &$specs, $switch_labels = array()
 }
 
 // Generates specialized offsets
-function gen_specs($f, $prolog, $specs) {
+function gen_specs($f, $prolog, $specs)
+{
     $lastdef = array_pop($specs);
     $last = 0;
     foreach ($specs as $num => $def) {
@@ -1533,25 +1553,27 @@ function gen_specs($f, $prolog, $specs) {
 }
 
 // Generates handler for undefined opcodes (CALL threading model)
-function gen_null_handler($f) {
+function gen_null_handler($f)
+{
     static $done = 0;
 
     // New and all executors with CALL threading model can use the same handler
     // for undefined opcodes, do we emit code for it only once
     if (!$done) {
         $done = 1;
-        out($f,"static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_NULL_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
-        out($f,"{\n");
-        out($f,"\tUSE_OPLINE\n");
-        out($f,"\n");
-        out($f,"\tSAVE_OPLINE();\n");
-        out($f,"\tzend_error_noreturn(E_ERROR, \"Invalid opcode %d/%d/%d.\", OPLINE->opcode, OPLINE->op1_type, OPLINE->op2_type);\n");
-        out($f,"\tZEND_VM_NEXT_OPCODE(); /* Never reached */\n");
-        out($f,"}\n\n");
+        out($f, "static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_NULL_HANDLER(ZEND_OPCODE_HANDLER_ARGS)\n");
+        out($f, "{\n");
+        out($f, "\tUSE_OPLINE\n");
+        out($f, "\n");
+        out($f, "\tSAVE_OPLINE();\n");
+        out($f, "\tzend_error_noreturn(E_ERROR, \"Invalid opcode %d/%d/%d.\", OPLINE->opcode, OPLINE->op1_type, OPLINE->op2_type);\n");
+        out($f, "\tZEND_VM_NEXT_OPCODE(); /* Never reached */\n");
+        out($f, "}\n\n");
     }
 }
 
-function extra_spec_name($extra_spec) {
+function extra_spec_name($extra_spec)
+{
     global $prefix;
 
     $s = "";
@@ -1569,7 +1591,7 @@ function extra_spec_name($extra_spec) {
     if (isset($extra_spec["SMART_BRANCH"])) {
         if ($extra_spec["SMART_BRANCH"] == 1) {
             $s .= "_JMPZ";
-        } else if ($extra_spec["SMART_BRANCH"] == 2) {
+        } elseif ($extra_spec["SMART_BRANCH"] == 2) {
             $s .= "_JMPNZ";
         }
     }
@@ -1588,7 +1610,8 @@ function extra_spec_name($extra_spec) {
     return $s;
 }
 
-function extra_spec_flags($extra_spec) {
+function extra_spec_flags($extra_spec)
+{
     $s = array();
     if (isset($extra_spec["OP_DATA"])) {
         $s[] = "SPEC_RULE_OP_DATA";
@@ -1614,7 +1637,8 @@ function extra_spec_flags($extra_spec) {
     return $s;
 }
 
-function extra_spec_handler($dsc) {
+function extra_spec_handler($dsc)
+{
     global $op_types_ex;
 
     if (!isset($dsc["spec"])) {
@@ -1632,7 +1656,7 @@ function extra_spec_handler($dsc) {
         }
     }
 
-    $f = function($specs) use (&$f) {
+    $f = function ($specs) use (&$f) {
         $spec = key($specs);
         $top = array_shift($specs);
         if ($specs) {
@@ -1651,7 +1675,8 @@ function extra_spec_handler($dsc) {
     return $f($specs);
 }
 
-function read_order_file($fn) {
+function read_order_file($fn)
+{
     $f = fopen($fn, "r");
     if (!is_resource($f)) {
         return false;
@@ -1668,7 +1693,8 @@ function read_order_file($fn) {
 }
 
 // Generates all opcode handlers and helpers (specialized or unspecialized)
-function gen_executor_code($f, $spec, $kind, $prolog, &$switch_labels = array()) {
+function gen_executor_code($f, $spec, $kind, $prolog, &$switch_labels = array())
+{
     global $list, $opcodes, $helpers, $op_types_ex, $gen_order;
 
     if ($spec) {
@@ -1687,17 +1713,17 @@ function gen_executor_code($f, $spec, $kind, $prolog, &$switch_labels = array())
                             // Check if handler accepts such types of operands (op1 and op2)
                             if (isset($opcodes[$num]["op1"][$op1]) &&
                                 isset($opcodes[$num]["op2"][$op2])) {
-                              // Generate handler code
+                                // Generate handler code
                                 gen_handler($f, 1, $kind, $opcodes[$num]["op"], $op1, $op2, isset($opcodes[$num]["use"]), $opcodes[$num]["code"], $lineno, $opcodes[$num], $extra_spec, $switch_labels);
                             }
                         }
-                    } else if (isset($dsc["helper"])) {
+                    } elseif (isset($dsc["helper"])) {
                         $num = $dsc["helper"];
                         foreach (extra_spec_handler($helpers[$num]) as $extra_spec) {
                             // Check if handler accepts such types of operands (op1 and op2)
                             if (isset($helpers[$num]["op1"][$op1]) &&
                                 isset($helpers[$num]["op2"][$op2])) {
-                              // Generate helper code
+                                // Generate helper code
                                 gen_helper($f, 1, $kind, $num, $op1, $op2, $helpers[$num]["param"], $helpers[$num]["code"], $lineno, $helpers[$num]["inline"], $helpers[$num]["cold"], $helpers[$num]["hot"], $extra_spec);
                             }
                         }
@@ -1719,7 +1745,7 @@ function gen_executor_code($f, $spec, $kind, $prolog, &$switch_labels = array())
                 if ($num < 256) {
                     gen_handler($f, 0, $kind, $opcodes[$num]["op"], "ANY", "ANY", isset($opcodes[$num]["use"]), $opcodes[$num]["code"], $lineno, $opcodes[$num]);
                 }
-            } else if (isset($dsc["helper"])) {
+            } elseif (isset($dsc["helper"])) {
                 $num = $dsc["helper"];
                 // Generate helper code
                 gen_helper($f, 0, $kind, $num, "ANY", "ANY", $helpers[$num]["param"], $helpers[$num]["code"], $lineno, $helpers[$num]["inline"], $helpers[$num]["cold"], $helpers[$num]["hot"]);
@@ -1749,41 +1775,43 @@ function gen_executor_code($f, $spec, $kind, $prolog, &$switch_labels = array())
             gen_null_handler($f);
             break;
         case ZEND_VM_KIND_SWITCH:
-            out($f,"default: ZEND_NULL_LABEL:\n");
-            out($f,"\tzend_error_noreturn(E_ERROR, \"Invalid opcode %d/%d/%d.\", OPLINE->opcode, OPLINE->op1_type, OPLINE->op2_type);\n");
-            out($f,"\tZEND_VM_NEXT_OPCODE(); /* Never reached */\n");
+            out($f, "default: ZEND_NULL_LABEL:\n");
+            out($f, "\tzend_error_noreturn(E_ERROR, \"Invalid opcode %d/%d/%d.\", OPLINE->opcode, OPLINE->op1_type, OPLINE->op2_type);\n");
+            out($f, "\tZEND_VM_NEXT_OPCODE(); /* Never reached */\n");
             break;
         case ZEND_VM_KIND_GOTO:
-            out($f,"ZEND_NULL_LABEL:\n");
-            out($f,"\tzend_error_noreturn(E_ERROR, \"Invalid opcode %d/%d/%d.\", OPLINE->opcode, OPLINE->op1_type, OPLINE->op2_type);\n");
-            out($f,"\tZEND_VM_NEXT_OPCODE(); /* Never reached */\n");
+            out($f, "ZEND_NULL_LABEL:\n");
+            out($f, "\tzend_error_noreturn(E_ERROR, \"Invalid opcode %d/%d/%d.\", OPLINE->opcode, OPLINE->op1_type, OPLINE->op2_type);\n");
+            out($f, "\tZEND_VM_NEXT_OPCODE(); /* Never reached */\n");
             break;
         case ZEND_VM_KIND_HYBRID:
-            out($f,"\t\t\tHYBRID_CASE(HYBRID_HALT):\n");
-            out($f,"#ifdef ZEND_VM_FP_GLOBAL_REG\n");
-            out($f,"\t\t\t\texecute_data = vm_stack_data.orig_execute_data;\n");
-            out($f,"#endif\n");
-            out($f,"#ifdef ZEND_VM_IP_GLOBAL_REG\n");
-            out($f,"\t\t\t\topline = vm_stack_data.orig_opline;\n");
-            out($f,"#endif\n");
-            out($f,"\t\t\t\treturn;\n");
-            out($f,"\t\t\tHYBRID_DEFAULT:\n");
-            out($f,"\t\t\t\tVM_TRACE(ZEND_NULL)\n");
-            out($f,"\t\t\t\tZEND_NULL_HANDLER(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU);\n");
-            out($f,"\t\t\t\tVM_TRACE_OP_END(ZEND_NULL)\n");
-            out($f,"\t\t\t\tHYBRID_BREAK(); /* Never reached */\n");
+            out($f, "\t\t\tHYBRID_CASE(HYBRID_HALT):\n");
+            out($f, "#ifdef ZEND_VM_FP_GLOBAL_REG\n");
+            out($f, "\t\t\t\texecute_data = vm_stack_data.orig_execute_data;\n");
+            out($f, "#endif\n");
+            out($f, "#ifdef ZEND_VM_IP_GLOBAL_REG\n");
+            out($f, "\t\t\t\topline = vm_stack_data.orig_opline;\n");
+            out($f, "#endif\n");
+            out($f, "\t\t\t\treturn;\n");
+            out($f, "\t\t\tHYBRID_DEFAULT:\n");
+            out($f, "\t\t\t\tVM_TRACE(ZEND_NULL)\n");
+            out($f, "\t\t\t\tZEND_NULL_HANDLER(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU);\n");
+            out($f, "\t\t\t\tVM_TRACE_OP_END(ZEND_NULL)\n");
+            out($f, "\t\t\t\tHYBRID_BREAK(); /* Never reached */\n");
             break;
     }
 }
 
-function skip_blanks($f, $prolog, $epilog) {
+function skip_blanks($f, $prolog, $epilog)
+{
     if (trim($prolog) != "" || trim($epilog) != "") {
         out($f, $prolog.$epilog);
     }
 }
 
 // Generates executor from skeleton file and definition (specialized or unspecialized)
-function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name) {
+function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
+{
     global $params, $skeleton_file, $line_no, $gen_order;
 
     if ($kind == ZEND_VM_KIND_HYBRID && file_exists(__DIR__ . "/zend_vm_order.txt")) {
@@ -1795,242 +1823,243 @@ function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
     $switch_labels = array();
     $lineno = 0;
     foreach ($skl as $line) {
-      // Skeleton file contains special markers in form %NAME% those are
-      // substituted by custom code
+        // Skeleton file contains special markers in form %NAME% those are
+        // substituted by custom code
         if (preg_match("/(.*)[{][%]([A-Z_]*)[%][}](.*)/", $line, $m)) {
             switch ($m[2]) {
                 case "DEFINES":
-                    out($f,"#define SPEC_START_MASK        0x0000ffff\n");
-                    out($f,"#define SPEC_EXTRA_MASK        0xfffc0000\n");
-                    out($f,"#define SPEC_RULE_OP1          0x00010000\n");
-                    out($f,"#define SPEC_RULE_OP2          0x00020000\n");
-                    out($f,"#define SPEC_RULE_OP_DATA      0x00040000\n");
-                    out($f,"#define SPEC_RULE_RETVAL       0x00080000\n");
-                    out($f,"#define SPEC_RULE_QUICK_ARG    0x00100000\n");
-                    out($f,"#define SPEC_RULE_SMART_BRANCH 0x00200000\n");
-                    out($f,"#define SPEC_RULE_COMMUTATIVE  0x00800000\n");
-                    out($f,"#define SPEC_RULE_ISSET        0x01000000\n");
-                    out($f,"#define SPEC_RULE_OBSERVER     0x02000000\n");
-                    out($f,"\n");
-                    out($f,"static const uint32_t *zend_spec_handlers;\n");
-                    out($f,"static const void * const *zend_opcode_handlers;\n");
-                    out($f,"static int zend_handlers_count;\n");
+                    out($f, "#define SPEC_START_MASK        0x0000ffff\n");
+                    out($f, "#define SPEC_EXTRA_MASK        0xfffc0000\n");
+                    out($f, "#define SPEC_RULE_OP1          0x00010000\n");
+                    out($f, "#define SPEC_RULE_OP2          0x00020000\n");
+                    out($f, "#define SPEC_RULE_OP_DATA      0x00040000\n");
+                    out($f, "#define SPEC_RULE_RETVAL       0x00080000\n");
+                    out($f, "#define SPEC_RULE_QUICK_ARG    0x00100000\n");
+                    out($f, "#define SPEC_RULE_SMART_BRANCH 0x00200000\n");
+                    out($f, "#define SPEC_RULE_COMMUTATIVE  0x00800000\n");
+                    out($f, "#define SPEC_RULE_ISSET        0x01000000\n");
+                    out($f, "#define SPEC_RULE_OBSERVER     0x02000000\n");
+                    out($f, "\n");
+                    out($f, "static const uint32_t *zend_spec_handlers;\n");
+                    out($f, "static const void * const *zend_opcode_handlers;\n");
+                    out($f, "static int zend_handlers_count;\n");
                     if ($kind == ZEND_VM_KIND_HYBRID) {
-                        out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
-                        out($f,"static const void * const * zend_opcode_handler_funcs;\n");
-                        out($f,"static zend_op hybrid_halt_op;\n");
-                        out($f,"#endif\n");
+                        out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+                        out($f, "static const void * const * zend_opcode_handler_funcs;\n");
+                        out($f, "static zend_op hybrid_halt_op;\n");
+                        out($f, "#endif\n");
                     }
-                    out($f,"#if (ZEND_VM_KIND != ZEND_VM_KIND_HYBRID) || !ZEND_VM_SPEC\n");
-                    out($f,"static const void *zend_vm_get_opcode_handler(uint8_t opcode, const zend_op* op);\n");
-                    out($f,"#endif\n\n");
+                    out($f, "#if (ZEND_VM_KIND != ZEND_VM_KIND_HYBRID) || !ZEND_VM_SPEC\n");
+                    out($f, "static const void *zend_vm_get_opcode_handler(uint8_t opcode, const zend_op* op);\n");
+                    out($f, "#endif\n\n");
                     if ($kind == ZEND_VM_KIND_HYBRID) {
-                        out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
-                        out($f,"static const void *zend_vm_get_opcode_handler_func(uint8_t opcode, const zend_op* op);\n");
-                        out($f,"#else\n");
-                        out($f,"# define zend_vm_get_opcode_handler_func zend_vm_get_opcode_handler\n");
-                        out($f,"#endif\n\n");
+                        out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+                        out($f, "static const void *zend_vm_get_opcode_handler_func(uint8_t opcode, const zend_op* op);\n");
+                        out($f, "#else\n");
+                        out($f, "# define zend_vm_get_opcode_handler_func zend_vm_get_opcode_handler\n");
+                        out($f, "#endif\n\n");
                     }
-                    out($f,"#ifndef VM_TRACE\n");
+                    out($f, "#ifndef VM_TRACE\n");
                     if (is_array($gen_order)) {
-                        out($f,"# define VM_TRACE(op) ZEND_VM_GUARD(op);\n");
+                        out($f, "# define VM_TRACE(op) ZEND_VM_GUARD(op);\n");
                     } else {
-                        out($f,"# define VM_TRACE(op)\n");
+                        out($f, "# define VM_TRACE(op)\n");
                     }
-                    out($f,"#endif\n");
-                    out($f,"#ifndef VM_TRACE_OP_END\n");
-                    out($f,"# define VM_TRACE_OP_END(op)\n");
-                    out($f,"#endif\n");
-                    out($f,"#ifndef VM_TRACE_START\n");
-                    out($f,"# define VM_TRACE_START()\n");
-                    out($f,"#endif\n");
-                    out($f,"#ifndef VM_TRACE_END\n");
-                    out($f,"# define VM_TRACE_END()\n");
-                    out($f,"#endif\n");
+                    out($f, "#endif\n");
+                    out($f, "#ifndef VM_TRACE_OP_END\n");
+                    out($f, "# define VM_TRACE_OP_END(op)\n");
+                    out($f, "#endif\n");
+                    out($f, "#ifndef VM_TRACE_START\n");
+                    out($f, "# define VM_TRACE_START()\n");
+                    out($f, "#endif\n");
+                    out($f, "#ifndef VM_TRACE_END\n");
+                    out($f, "# define VM_TRACE_END()\n");
+                    out($f, "#endif\n");
                     switch ($kind) {
                         case ZEND_VM_KIND_HYBRID:
-                            out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
-                            out($f,"# if defined(__GNUC__) && defined(__i386__)\n");
-                            out($f,"#  define HYBRID_JIT_GUARD() __asm__ __volatile__ (\"\"::: \"ebx\")\n");
-                            out($f,"# elif defined(__GNUC__) && defined(__x86_64__)\n");
-                            out($f,"#  define HYBRID_JIT_GUARD() __asm__ __volatile__ (\"\"::: \"rbx\",\"r12\",\"r13\")\n");
-                            out($f,"# elif defined(__GNUC__) && defined(__aarch64__)\n");
-                            out($f,"#  define HYBRID_JIT_GUARD() __asm__ __volatile__ (\"\"::: \"x19\",\"x20\",\"x21\",\"x22\",\"x23\",\"x24\",\"x25\",\"x26\")\n");
-                            out($f,"# else\n");
-                            out($f,"#  define HYBRID_JIT_GUARD()\n");
-                            out($f,"# endif\n");
-                            out($f,"#define HYBRID_NEXT()     HYBRID_JIT_GUARD(); goto *(void**)(OPLINE->handler)\n");
-                            out($f,"#define HYBRID_SWITCH()   HYBRID_NEXT();\n");
-                            out($f,"#define HYBRID_CASE(op)   op ## _LABEL\n");
-                            out($f,"#define HYBRID_BREAK()    HYBRID_NEXT()\n");
-                            out($f,"#define HYBRID_DEFAULT    ZEND_NULL_LABEL\n");
-                            out($f,"#endif\n");
+                            out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+                            out($f, "# if defined(__GNUC__) && defined(__i386__)\n");
+                            out($f, "#  define HYBRID_JIT_GUARD() __asm__ __volatile__ (\"\"::: \"ebx\")\n");
+                            out($f, "# elif defined(__GNUC__) && defined(__x86_64__)\n");
+                            out($f, "#  define HYBRID_JIT_GUARD() __asm__ __volatile__ (\"\"::: \"rbx\",\"r12\",\"r13\")\n");
+                            out($f, "# elif defined(__GNUC__) && defined(__aarch64__)\n");
+                            out($f, "#  define HYBRID_JIT_GUARD() __asm__ __volatile__ (\"\"::: \"x19\",\"x20\",\"x21\",\"x22\",\"x23\",\"x24\",\"x25\",\"x26\")\n");
+                            out($f, "# else\n");
+                            out($f, "#  define HYBRID_JIT_GUARD()\n");
+                            out($f, "# endif\n");
+                            out($f, "#define HYBRID_NEXT()     HYBRID_JIT_GUARD(); goto *(void**)(OPLINE->handler)\n");
+                            out($f, "#define HYBRID_SWITCH()   HYBRID_NEXT();\n");
+                            out($f, "#define HYBRID_CASE(op)   op ## _LABEL\n");
+                            out($f, "#define HYBRID_BREAK()    HYBRID_NEXT()\n");
+                            out($f, "#define HYBRID_DEFAULT    ZEND_NULL_LABEL\n");
+                            out($f, "#endif\n");
+                            // no break
                         case ZEND_VM_KIND_CALL:
-                            out($f,"\n");
-                            out($f,"#ifdef ZEND_VM_FP_GLOBAL_REG\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_ARGS void\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_ARGS_PASSTHRU\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_ARGS_DC\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_ARGS_PASSTHRU_CC\n");
-                            out($f,"#else\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_ARGS zend_execute_data *execute_data\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_ARGS_PASSTHRU execute_data\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_ARGS_DC , ZEND_OPCODE_HANDLER_ARGS\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_ARGS_PASSTHRU_CC , ZEND_OPCODE_HANDLER_ARGS_PASSTHRU\n");
-                            out($f,"#endif\n");
-                            out($f,"\n");
-                            out($f,"#if defined(ZEND_VM_FP_GLOBAL_REG) && defined(ZEND_VM_IP_GLOBAL_REG)\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_RET void\n");
-                            out($f,"# define ZEND_VM_TAIL_CALL(call) call; return\n");
-                            out($f,"# ifdef ZEND_VM_TAIL_CALL_DISPATCH\n");
-                            out($f,"#  define ZEND_VM_CONTINUE()     ((opcode_handler_t)OPLINE->handler)(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU); return\n");
-                            out($f,"# else\n");
-                            out($f,"#  define ZEND_VM_CONTINUE()     return\n");
-                            out($f,"# endif\n");
+                            out($f, "\n");
+                            out($f, "#ifdef ZEND_VM_FP_GLOBAL_REG\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_ARGS void\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_ARGS_PASSTHRU\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_ARGS_DC\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_ARGS_PASSTHRU_CC\n");
+                            out($f, "#else\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_ARGS zend_execute_data *execute_data\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_ARGS_PASSTHRU execute_data\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_ARGS_DC , ZEND_OPCODE_HANDLER_ARGS\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_ARGS_PASSTHRU_CC , ZEND_OPCODE_HANDLER_ARGS_PASSTHRU\n");
+                            out($f, "#endif\n");
+                            out($f, "\n");
+                            out($f, "#if defined(ZEND_VM_FP_GLOBAL_REG) && defined(ZEND_VM_IP_GLOBAL_REG)\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_RET void\n");
+                            out($f, "# define ZEND_VM_TAIL_CALL(call) call; return\n");
+                            out($f, "# ifdef ZEND_VM_TAIL_CALL_DISPATCH\n");
+                            out($f, "#  define ZEND_VM_CONTINUE()     ((opcode_handler_t)OPLINE->handler)(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU); return\n");
+                            out($f, "# else\n");
+                            out($f, "#  define ZEND_VM_CONTINUE()     return\n");
+                            out($f, "# endif\n");
                             if ($kind == ZEND_VM_KIND_HYBRID) {
-                                out($f,"# if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
-                                out($f,"#  define ZEND_VM_RETURN()        opline = &hybrid_halt_op; return\n");
-                                out($f,"#  define ZEND_VM_HOT             zend_always_inline ZEND_COLD ZEND_OPT_SIZE\n");
-                                out($f,"#  define ZEND_VM_COLD            ZEND_COLD ZEND_OPT_SIZE\n");
-                                out($f,"# else\n");
-                                out($f,"#  define ZEND_VM_RETURN()        opline = NULL; return\n");
-                                out($f,"#  define ZEND_VM_HOT\n");
-                                out($f,"#  define ZEND_VM_COLD            ZEND_COLD ZEND_OPT_SIZE\n");
-                                out($f,"# endif\n");
+                                out($f, "# if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+                                out($f, "#  define ZEND_VM_RETURN()        opline = &hybrid_halt_op; return\n");
+                                out($f, "#  define ZEND_VM_HOT             zend_always_inline ZEND_COLD ZEND_OPT_SIZE\n");
+                                out($f, "#  define ZEND_VM_COLD            ZEND_COLD ZEND_OPT_SIZE\n");
+                                out($f, "# else\n");
+                                out($f, "#  define ZEND_VM_RETURN()        opline = NULL; return\n");
+                                out($f, "#  define ZEND_VM_HOT\n");
+                                out($f, "#  define ZEND_VM_COLD            ZEND_COLD ZEND_OPT_SIZE\n");
+                                out($f, "# endif\n");
                             } else {
-                                out($f,"# define ZEND_VM_RETURN()        opline = NULL; return\n");
-                                out($f,"# define ZEND_VM_COLD            ZEND_COLD ZEND_OPT_SIZE\n");
+                                out($f, "# define ZEND_VM_RETURN()        opline = NULL; return\n");
+                                out($f, "# define ZEND_VM_COLD            ZEND_COLD ZEND_OPT_SIZE\n");
                             }
-                            out($f,"#else\n");
-                            out($f,"# define ZEND_OPCODE_HANDLER_RET int\n");
-                            out($f,"# define ZEND_VM_TAIL_CALL(call) return call\n");
-                            out($f,"# define ZEND_VM_CONTINUE()      return  0\n");
-                            out($f,"# define ZEND_VM_RETURN()        return -1\n");
+                            out($f, "#else\n");
+                            out($f, "# define ZEND_OPCODE_HANDLER_RET int\n");
+                            out($f, "# define ZEND_VM_TAIL_CALL(call) return call\n");
+                            out($f, "# define ZEND_VM_CONTINUE()      return  0\n");
+                            out($f, "# define ZEND_VM_RETURN()        return -1\n");
                             if ($kind == ZEND_VM_KIND_HYBRID) {
-                                out($f,"# define ZEND_VM_HOT\n");
+                                out($f, "# define ZEND_VM_HOT\n");
                             }
-                            out($f,"# define ZEND_VM_COLD            ZEND_COLD ZEND_OPT_SIZE\n");
-                            out($f,"#endif\n");
-                            out($f,"\n");
-                            out($f,"typedef ZEND_OPCODE_HANDLER_RET (ZEND_FASTCALL *opcode_handler_t) (ZEND_OPCODE_HANDLER_ARGS);\n");
-                            out($f,"\n");
-                            out($f,"#define DCL_OPLINE\n");
-                            out($f,"#ifdef ZEND_VM_IP_GLOBAL_REG\n");
-                            out($f,"# define OPLINE opline\n");
-                            out($f,"# define USE_OPLINE\n");
-                            out($f,"# define LOAD_OPLINE() opline = EX(opline)\n");
-                            out($f,"# define LOAD_OPLINE_EX()\n");
-                            out($f,"# define LOAD_NEXT_OPLINE() opline = EX(opline) + 1\n");
-                            out($f,"# define SAVE_OPLINE() EX(opline) = opline\n");
-                            out($f,"# define SAVE_OPLINE_EX() SAVE_OPLINE()\n");
-                            out($f,"#else\n");
-                            out($f,"# define OPLINE EX(opline)\n");
-                            out($f,"# define USE_OPLINE const zend_op *opline = EX(opline);\n");
-                            out($f,"# define LOAD_OPLINE()\n");
-                            out($f,"# define LOAD_OPLINE_EX()\n");
-                            out($f,"# define LOAD_NEXT_OPLINE() ZEND_VM_INC_OPCODE()\n");
-                            out($f,"# define SAVE_OPLINE()\n");
-                            out($f,"# define SAVE_OPLINE_EX()\n");
-                            out($f,"#endif\n");
-                            out($f,"#define HANDLE_EXCEPTION() ZEND_ASSERT(EG(exception)); LOAD_OPLINE(); ZEND_VM_CONTINUE()\n");
-                            out($f,"#define HANDLE_EXCEPTION_LEAVE() ZEND_ASSERT(EG(exception)); LOAD_OPLINE(); ZEND_VM_LEAVE()\n");
-                            out($f,"#if defined(ZEND_VM_FP_GLOBAL_REG)\n");
-                            out($f,"# define ZEND_VM_ENTER_EX()        ZEND_VM_INTERRUPT_CHECK(); ZEND_VM_CONTINUE()\n");
-                            out($f,"# define ZEND_VM_ENTER()           execute_data = EG(current_execute_data); LOAD_OPLINE(); ZEND_VM_ENTER_EX()\n");
-                            out($f,"# define ZEND_VM_LEAVE()           ZEND_VM_CONTINUE()\n");
-                            out($f,"#elif defined(ZEND_VM_IP_GLOBAL_REG)\n");
-                            out($f,"# define ZEND_VM_ENTER_EX()        return  1\n");
-                            out($f,"# define ZEND_VM_ENTER()           opline = EG(current_execute_data)->opline; ZEND_VM_ENTER_EX()\n");
-                            out($f,"# define ZEND_VM_LEAVE()           return  2\n");
-                            out($f,"#else\n");
-                            out($f,"# define ZEND_VM_ENTER_EX()        return  1\n");
-                            out($f,"# define ZEND_VM_ENTER()           return  1\n");
-                            out($f,"# define ZEND_VM_LEAVE()           return  2\n");
-                            out($f,"#endif\n");
-                            out($f,"#define ZEND_VM_INTERRUPT()      ZEND_VM_TAIL_CALL(zend_interrupt_helper".($spec?"_SPEC":"")."(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU));\n");
-                            out($f,"#define ZEND_VM_LOOP_INTERRUPT() zend_interrupt_helper".($spec?"_SPEC":"")."(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU);\n");
+                            out($f, "# define ZEND_VM_COLD            ZEND_COLD ZEND_OPT_SIZE\n");
+                            out($f, "#endif\n");
+                            out($f, "\n");
+                            out($f, "typedef ZEND_OPCODE_HANDLER_RET (ZEND_FASTCALL *opcode_handler_t) (ZEND_OPCODE_HANDLER_ARGS);\n");
+                            out($f, "\n");
+                            out($f, "#define DCL_OPLINE\n");
+                            out($f, "#ifdef ZEND_VM_IP_GLOBAL_REG\n");
+                            out($f, "# define OPLINE opline\n");
+                            out($f, "# define USE_OPLINE\n");
+                            out($f, "# define LOAD_OPLINE() opline = EX(opline)\n");
+                            out($f, "# define LOAD_OPLINE_EX()\n");
+                            out($f, "# define LOAD_NEXT_OPLINE() opline = EX(opline) + 1\n");
+                            out($f, "# define SAVE_OPLINE() EX(opline) = opline\n");
+                            out($f, "# define SAVE_OPLINE_EX() SAVE_OPLINE()\n");
+                            out($f, "#else\n");
+                            out($f, "# define OPLINE EX(opline)\n");
+                            out($f, "# define USE_OPLINE const zend_op *opline = EX(opline);\n");
+                            out($f, "# define LOAD_OPLINE()\n");
+                            out($f, "# define LOAD_OPLINE_EX()\n");
+                            out($f, "# define LOAD_NEXT_OPLINE() ZEND_VM_INC_OPCODE()\n");
+                            out($f, "# define SAVE_OPLINE()\n");
+                            out($f, "# define SAVE_OPLINE_EX()\n");
+                            out($f, "#endif\n");
+                            out($f, "#define HANDLE_EXCEPTION() ZEND_ASSERT(EG(exception)); LOAD_OPLINE(); ZEND_VM_CONTINUE()\n");
+                            out($f, "#define HANDLE_EXCEPTION_LEAVE() ZEND_ASSERT(EG(exception)); LOAD_OPLINE(); ZEND_VM_LEAVE()\n");
+                            out($f, "#if defined(ZEND_VM_FP_GLOBAL_REG)\n");
+                            out($f, "# define ZEND_VM_ENTER_EX()        ZEND_VM_INTERRUPT_CHECK(); ZEND_VM_CONTINUE()\n");
+                            out($f, "# define ZEND_VM_ENTER()           execute_data = EG(current_execute_data); LOAD_OPLINE(); ZEND_VM_ENTER_EX()\n");
+                            out($f, "# define ZEND_VM_LEAVE()           ZEND_VM_CONTINUE()\n");
+                            out($f, "#elif defined(ZEND_VM_IP_GLOBAL_REG)\n");
+                            out($f, "# define ZEND_VM_ENTER_EX()        return  1\n");
+                            out($f, "# define ZEND_VM_ENTER()           opline = EG(current_execute_data)->opline; ZEND_VM_ENTER_EX()\n");
+                            out($f, "# define ZEND_VM_LEAVE()           return  2\n");
+                            out($f, "#else\n");
+                            out($f, "# define ZEND_VM_ENTER_EX()        return  1\n");
+                            out($f, "# define ZEND_VM_ENTER()           return  1\n");
+                            out($f, "# define ZEND_VM_LEAVE()           return  2\n");
+                            out($f, "#endif\n");
+                            out($f, "#define ZEND_VM_INTERRUPT()      ZEND_VM_TAIL_CALL(zend_interrupt_helper".($spec ? "_SPEC" : "")."(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU));\n");
+                            out($f, "#define ZEND_VM_LOOP_INTERRUPT() zend_interrupt_helper".($spec ? "_SPEC" : "")."(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU);\n");
                             if ($kind == ZEND_VM_KIND_HYBRID) {
-                                out($f,"#define ZEND_VM_DISPATCH(opcode, opline) ZEND_VM_TAIL_CALL(((opcode_handler_t)zend_vm_get_opcode_handler_func(opcode, opline))(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU));\n");
+                                out($f, "#define ZEND_VM_DISPATCH(opcode, opline) ZEND_VM_TAIL_CALL(((opcode_handler_t)zend_vm_get_opcode_handler_func(opcode, opline))(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU));\n");
                             } else {
-                                out($f,"#define ZEND_VM_DISPATCH(opcode, opline) ZEND_VM_TAIL_CALL(((opcode_handler_t)zend_vm_get_opcode_handler(opcode, opline))(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU));\n");
+                                out($f, "#define ZEND_VM_DISPATCH(opcode, opline) ZEND_VM_TAIL_CALL(((opcode_handler_t)zend_vm_get_opcode_handler(opcode, opline))(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU));\n");
                             }
-                            out($f,"\n");
-                            out($f,"static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL zend_interrupt_helper".($spec?"_SPEC":"")."(ZEND_OPCODE_HANDLER_ARGS);\n");
-                            out($f,"static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_NULL_HANDLER(ZEND_OPCODE_HANDLER_ARGS);\n");
-                            out($f,"\n");
+                            out($f, "\n");
+                            out($f, "static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL zend_interrupt_helper".($spec ? "_SPEC" : "")."(ZEND_OPCODE_HANDLER_ARGS);\n");
+                            out($f, "static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_NULL_HANDLER(ZEND_OPCODE_HANDLER_ARGS);\n");
+                            out($f, "\n");
                             break;
                         case ZEND_VM_KIND_SWITCH:
-                            out($f,"\n");
-                            out($f,"#define OPLINE opline\n");
-                            out($f,"#ifdef ZEND_VM_IP_GLOBAL_REG\n");
-                            out($f,"# define DCL_OPLINE register const zend_op *opline __asm__(ZEND_VM_IP_GLOBAL_REG);\n");
-                            out($f,"#else\n");
-                            out($f,"# define DCL_OPLINE const zend_op *opline;\n");
-                            out($f,"#endif\n");
-                            out($f,"#define USE_OPLINE\n");
-                            out($f,"#define LOAD_OPLINE() opline = EX(opline)\n");
-                            out($f,"# define LOAD_OPLINE_EX() LOAD_OPLINE()\n");
-                            out($f,"#define LOAD_NEXT_OPLINE() opline = EX(opline) + 1\n");
-                            out($f,"#define SAVE_OPLINE() EX(opline) = opline\n");
-                            out($f,"#define SAVE_OPLINE_EX()\n");
-                            out($f,"#define HANDLE_EXCEPTION() ZEND_ASSERT(EG(exception)); LOAD_OPLINE(); ZEND_VM_CONTINUE()\n");
-                            out($f,"#define HANDLE_EXCEPTION_LEAVE() ZEND_ASSERT(EG(exception)); LOAD_OPLINE(); ZEND_VM_LEAVE()\n");
-                            out($f,"#define ZEND_VM_CONTINUE() goto zend_vm_continue\n");
-                            out($f,"#define ZEND_VM_RETURN()   return\n");
-                            out($f,"#define ZEND_VM_ENTER_EX() ZEND_VM_INTERRUPT_CHECK(); ZEND_VM_CONTINUE()\n");
-                            out($f,"#define ZEND_VM_ENTER()    execute_data = EG(current_execute_data); LOAD_OPLINE(); ZEND_VM_ENTER_EX()\n");
-                            out($f,"#define ZEND_VM_LEAVE()    ZEND_VM_CONTINUE()\n");
-                            out($f,"#define ZEND_VM_INTERRUPT()              goto zend_interrupt_helper".($spec?"_SPEC":"").";\n");
-                            out($f,"#define ZEND_VM_LOOP_INTERRUPT()         goto zend_interrupt_helper".($spec?"_SPEC":"").";\n");
-                            out($f,"#define ZEND_VM_DISPATCH(opcode, opline) dispatch_handler = zend_vm_get_opcode_handler(opcode, opline); goto zend_vm_dispatch;\n");
-                            out($f,"\n");
+                            out($f, "\n");
+                            out($f, "#define OPLINE opline\n");
+                            out($f, "#ifdef ZEND_VM_IP_GLOBAL_REG\n");
+                            out($f, "# define DCL_OPLINE register const zend_op *opline __asm__(ZEND_VM_IP_GLOBAL_REG);\n");
+                            out($f, "#else\n");
+                            out($f, "# define DCL_OPLINE const zend_op *opline;\n");
+                            out($f, "#endif\n");
+                            out($f, "#define USE_OPLINE\n");
+                            out($f, "#define LOAD_OPLINE() opline = EX(opline)\n");
+                            out($f, "# define LOAD_OPLINE_EX() LOAD_OPLINE()\n");
+                            out($f, "#define LOAD_NEXT_OPLINE() opline = EX(opline) + 1\n");
+                            out($f, "#define SAVE_OPLINE() EX(opline) = opline\n");
+                            out($f, "#define SAVE_OPLINE_EX()\n");
+                            out($f, "#define HANDLE_EXCEPTION() ZEND_ASSERT(EG(exception)); LOAD_OPLINE(); ZEND_VM_CONTINUE()\n");
+                            out($f, "#define HANDLE_EXCEPTION_LEAVE() ZEND_ASSERT(EG(exception)); LOAD_OPLINE(); ZEND_VM_LEAVE()\n");
+                            out($f, "#define ZEND_VM_CONTINUE() goto zend_vm_continue\n");
+                            out($f, "#define ZEND_VM_RETURN()   return\n");
+                            out($f, "#define ZEND_VM_ENTER_EX() ZEND_VM_INTERRUPT_CHECK(); ZEND_VM_CONTINUE()\n");
+                            out($f, "#define ZEND_VM_ENTER()    execute_data = EG(current_execute_data); LOAD_OPLINE(); ZEND_VM_ENTER_EX()\n");
+                            out($f, "#define ZEND_VM_LEAVE()    ZEND_VM_CONTINUE()\n");
+                            out($f, "#define ZEND_VM_INTERRUPT()              goto zend_interrupt_helper".($spec ? "_SPEC" : "").";\n");
+                            out($f, "#define ZEND_VM_LOOP_INTERRUPT()         goto zend_interrupt_helper".($spec ? "_SPEC" : "").";\n");
+                            out($f, "#define ZEND_VM_DISPATCH(opcode, opline) dispatch_handler = zend_vm_get_opcode_handler(opcode, opline); goto zend_vm_dispatch;\n");
+                            out($f, "\n");
                             break;
                         case ZEND_VM_KIND_GOTO:
-                            out($f,"\n");
-                            out($f,"#define OPLINE opline\n");
-                            out($f,"#ifdef ZEND_VM_IP_GLOBAL_REG\n");
-                            out($f,"# define DCL_OPLINE register const zend_op *opline __asm__(ZEND_VM_IP_GLOBAL_REG);\n");
-                            out($f,"#else\n");
-                            out($f,"# define DCL_OPLINE const zend_op *opline;\n");
-                            out($f,"#endif\n");
-                            out($f,"#define USE_OPLINE\n");
-                            out($f,"#define LOAD_OPLINE() opline = EX(opline)\n");
-                            out($f,"#define LOAD_OPLINE_EX() LOAD_OPLINE()\n");
-                            out($f,"#define LOAD_NEXT_OPLINE() opline = EX(opline) + 1\n");
-                            out($f,"#define SAVE_OPLINE() EX(opline) = opline\n");
-                            out($f,"#define SAVE_OPLINE_EX()\n");
+                            out($f, "\n");
+                            out($f, "#define OPLINE opline\n");
+                            out($f, "#ifdef ZEND_VM_IP_GLOBAL_REG\n");
+                            out($f, "# define DCL_OPLINE register const zend_op *opline __asm__(ZEND_VM_IP_GLOBAL_REG);\n");
+                            out($f, "#else\n");
+                            out($f, "# define DCL_OPLINE const zend_op *opline;\n");
+                            out($f, "#endif\n");
+                            out($f, "#define USE_OPLINE\n");
+                            out($f, "#define LOAD_OPLINE() opline = EX(opline)\n");
+                            out($f, "#define LOAD_OPLINE_EX() LOAD_OPLINE()\n");
+                            out($f, "#define LOAD_NEXT_OPLINE() opline = EX(opline) + 1\n");
+                            out($f, "#define SAVE_OPLINE() EX(opline) = opline\n");
+                            out($f, "#define SAVE_OPLINE_EX()\n");
                             if (ZEND_VM_SPEC) {
-                                out($f,"#define HANDLE_EXCEPTION() ZEND_ASSERT(EG(exception)); goto ZEND_HANDLE_EXCEPTION_SPEC_LABEL\n");
-                                out($f,"#define HANDLE_EXCEPTION_LEAVE() ZEND_ASSERT(EG(exception)); goto ZEND_HANDLE_EXCEPTION_SPEC_LABEL\n");
+                                out($f, "#define HANDLE_EXCEPTION() ZEND_ASSERT(EG(exception)); goto ZEND_HANDLE_EXCEPTION_SPEC_LABEL\n");
+                                out($f, "#define HANDLE_EXCEPTION_LEAVE() ZEND_ASSERT(EG(exception)); goto ZEND_HANDLE_EXCEPTION_SPEC_LABEL\n");
                             } else {
-                                out($f,"#define HANDLE_EXCEPTION() ZEND_ASSERT(EG(exception)); goto ZEND_HANDLE_EXCEPTION_LABEL\n");
-                                out($f,"#define HANDLE_EXCEPTION_LEAVE() ZEND_ASSERT(EG(exception)); goto ZEND_HANDLE_EXCEPTION_LABEL\n");
+                                out($f, "#define HANDLE_EXCEPTION() ZEND_ASSERT(EG(exception)); goto ZEND_HANDLE_EXCEPTION_LABEL\n");
+                                out($f, "#define HANDLE_EXCEPTION_LEAVE() ZEND_ASSERT(EG(exception)); goto ZEND_HANDLE_EXCEPTION_LABEL\n");
                             }
-                            out($f,"#define ZEND_VM_CONTINUE() goto *(void**)(OPLINE->handler)\n");
-                            out($f,"#define ZEND_VM_RETURN()   return\n");
-                            out($f,"#define ZEND_VM_ENTER_EX() ZEND_VM_INTERRUPT_CHECK(); ZEND_VM_CONTINUE()\n");
-                            out($f,"#define ZEND_VM_ENTER()    execute_data = EG(current_execute_data); LOAD_OPLINE(); ZEND_VM_ENTER_EX()\n");
-                            out($f,"#define ZEND_VM_LEAVE()    ZEND_VM_CONTINUE()\n");
-                            out($f,"#define ZEND_VM_INTERRUPT()              goto zend_interrupt_helper".($spec?"_SPEC":"").";\n");
-                            out($f,"#define ZEND_VM_LOOP_INTERRUPT()         goto zend_interrupt_helper".($spec?"_SPEC":"").";\n");
-                            out($f,"#define ZEND_VM_DISPATCH(opcode, opline) goto *(void**)(zend_vm_get_opcode_handler(opcode, opline));\n");
-                            out($f,"\n");
+                            out($f, "#define ZEND_VM_CONTINUE() goto *(void**)(OPLINE->handler)\n");
+                            out($f, "#define ZEND_VM_RETURN()   return\n");
+                            out($f, "#define ZEND_VM_ENTER_EX() ZEND_VM_INTERRUPT_CHECK(); ZEND_VM_CONTINUE()\n");
+                            out($f, "#define ZEND_VM_ENTER()    execute_data = EG(current_execute_data); LOAD_OPLINE(); ZEND_VM_ENTER_EX()\n");
+                            out($f, "#define ZEND_VM_LEAVE()    ZEND_VM_CONTINUE()\n");
+                            out($f, "#define ZEND_VM_INTERRUPT()              goto zend_interrupt_helper".($spec ? "_SPEC" : "").";\n");
+                            out($f, "#define ZEND_VM_LOOP_INTERRUPT()         goto zend_interrupt_helper".($spec ? "_SPEC" : "").";\n");
+                            out($f, "#define ZEND_VM_DISPATCH(opcode, opline) goto *(void**)(zend_vm_get_opcode_handler(opcode, opline));\n");
+                            out($f, "\n");
                             break;
                     }
                     if ($kind == ZEND_VM_KIND_HYBRID) {
                         gen_executor_code($f, $spec, ZEND_VM_KIND_CALL, $m[1]);
-                        out($f,"\n");
-                        out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
-                        out($f,"# undef ZEND_VM_TAIL_CALL\n");
-                        out($f,"# undef ZEND_VM_CONTINUE\n");
-                        out($f,"# undef ZEND_VM_RETURN\n");
-//						out($f,"# undef ZEND_VM_INTERRUPT\n");
-                        out($f,"\n");
-                        out($f,"# define ZEND_VM_TAIL_CALL(call) call; ZEND_VM_CONTINUE()\n");
-                        out($f,"# define ZEND_VM_CONTINUE()      HYBRID_NEXT()\n");
-                        out($f,"# define ZEND_VM_RETURN()        goto HYBRID_HALT_LABEL\n");
-//						out($f,"# define ZEND_VM_INTERRUPT()     goto zend_interrupt_helper_SPEC_LABEL\n");
-                        out($f,"#endif\n\n");
+                        out($f, "\n");
+                        out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+                        out($f, "# undef ZEND_VM_TAIL_CALL\n");
+                        out($f, "# undef ZEND_VM_CONTINUE\n");
+                        out($f, "# undef ZEND_VM_RETURN\n");
+                        //						out($f,"# undef ZEND_VM_INTERRUPT\n");
+                        out($f, "\n");
+                        out($f, "# define ZEND_VM_TAIL_CALL(call) call; ZEND_VM_CONTINUE()\n");
+                        out($f, "# define ZEND_VM_CONTINUE()      HYBRID_NEXT()\n");
+                        out($f, "# define ZEND_VM_RETURN()        goto HYBRID_HALT_LABEL\n");
+                        //						out($f,"# define ZEND_VM_INTERRUPT()     goto zend_interrupt_helper_SPEC_LABEL\n");
+                        out($f, "#endif\n\n");
                     }
                     break;
                 case "EXECUTOR_NAME":
@@ -2038,7 +2067,7 @@ function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
                     break;
                 case "HELPER_VARS":
                     if ($kind == ZEND_VM_KIND_SWITCH) {
-                        out($f,$m[1]."const void *dispatch_handler;\n");
+                        out($f, $m[1]."const void *dispatch_handler;\n");
                     }
                     if ($kind != ZEND_VM_KIND_CALL && count($params)) {
                         if ($kind == ZEND_VM_KIND_HYBRID) {
@@ -2046,73 +2075,73 @@ function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
                         }
                         // Emit local variables those are used for helpers' parameters
                         foreach ($params as $param => $x) {
-                            out($f,$m[1].$param.";\n");
+                            out($f, $m[1].$param.";\n");
                         }
                         if ($kind == ZEND_VM_KIND_HYBRID) {
                             out($f, "#endif\n");
                         }
                     }
                     if ($kind != ZEND_VM_KIND_CALL && $kind != ZEND_VM_KIND_HYBRID) {
-                        out($f,"#ifdef ZEND_VM_FP_GLOBAL_REG\n");
-                        out($f,$m[1]."register zend_execute_data *execute_data __asm__(ZEND_VM_FP_GLOBAL_REG) = ex;\n");
-                        out($f,"#else\n");
-                        out($f,$m[1]."zend_execute_data *execute_data = ex;\n");
-                        out($f,"#endif\n");
+                        out($f, "#ifdef ZEND_VM_FP_GLOBAL_REG\n");
+                        out($f, $m[1]."register zend_execute_data *execute_data __asm__(ZEND_VM_FP_GLOBAL_REG) = ex;\n");
+                        out($f, "#else\n");
+                        out($f, $m[1]."zend_execute_data *execute_data = ex;\n");
+                        out($f, "#endif\n");
                     } else {
-                        out($f,"#if defined(ZEND_VM_IP_GLOBAL_REG) || defined(ZEND_VM_FP_GLOBAL_REG)\n");
-                        out($f,$m[1]."struct {\n");
-                        out($f,"#ifdef ZEND_VM_HYBRID_JIT_RED_ZONE_SIZE\n");
-                        out($f,$m[1]."\tchar hybrid_jit_red_zone[ZEND_VM_HYBRID_JIT_RED_ZONE_SIZE];\n");
-                        out($f,"#endif\n");
-                        out($f,"#ifdef ZEND_VM_IP_GLOBAL_REG\n");
-                        out($f,$m[1]."\tconst zend_op *orig_opline;\n");
-                        out($f,"#endif\n");
-                        out($f,"#ifdef ZEND_VM_FP_GLOBAL_REG\n");
-                        out($f,$m[1]."\tzend_execute_data *orig_execute_data;\n");
-                        out($f,"#endif\n");
-                        out($f,$m[1]."} vm_stack_data;\n");
-                        out($f,"#endif\n");
-                        out($f,"#ifdef ZEND_VM_IP_GLOBAL_REG\n");
-                        out($f,$m[1]."vm_stack_data.orig_opline = opline;\n");
-                        out($f,"#endif\n");
-                        out($f,"#ifdef ZEND_VM_FP_GLOBAL_REG\n");
-                        out($f,$m[1]."vm_stack_data.orig_execute_data = execute_data;\n");
-                        out($f,$m[1]."execute_data = ex;\n");
-                        out($f,"#else\n");
-                        out($f,$m[1]."zend_execute_data *execute_data = ex;\n");
-                        out($f,"#endif\n");
+                        out($f, "#if defined(ZEND_VM_IP_GLOBAL_REG) || defined(ZEND_VM_FP_GLOBAL_REG)\n");
+                        out($f, $m[1]."struct {\n");
+                        out($f, "#ifdef ZEND_VM_HYBRID_JIT_RED_ZONE_SIZE\n");
+                        out($f, $m[1]."\tchar hybrid_jit_red_zone[ZEND_VM_HYBRID_JIT_RED_ZONE_SIZE];\n");
+                        out($f, "#endif\n");
+                        out($f, "#ifdef ZEND_VM_IP_GLOBAL_REG\n");
+                        out($f, $m[1]."\tconst zend_op *orig_opline;\n");
+                        out($f, "#endif\n");
+                        out($f, "#ifdef ZEND_VM_FP_GLOBAL_REG\n");
+                        out($f, $m[1]."\tzend_execute_data *orig_execute_data;\n");
+                        out($f, "#endif\n");
+                        out($f, $m[1]."} vm_stack_data;\n");
+                        out($f, "#endif\n");
+                        out($f, "#ifdef ZEND_VM_IP_GLOBAL_REG\n");
+                        out($f, $m[1]."vm_stack_data.orig_opline = opline;\n");
+                        out($f, "#endif\n");
+                        out($f, "#ifdef ZEND_VM_FP_GLOBAL_REG\n");
+                        out($f, $m[1]."vm_stack_data.orig_execute_data = execute_data;\n");
+                        out($f, $m[1]."execute_data = ex;\n");
+                        out($f, "#else\n");
+                        out($f, $m[1]."zend_execute_data *execute_data = ex;\n");
+                        out($f, "#endif\n");
                     }
                     break;
                 case "INTERNAL_LABELS":
                     if ($kind == ZEND_VM_KIND_GOTO || $kind == ZEND_VM_KIND_HYBRID) {
-                      // Emit array of labels of opcode handlers and code for
-                      // zend_opcode_handlers initialization
+                        // Emit array of labels of opcode handlers and code for
+                        // zend_opcode_handlers initialization
                         if ($kind == ZEND_VM_KIND_HYBRID) {
-                            out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+                            out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
                         }
                         $prolog = $m[1];
-                        out($f,$prolog."if (UNEXPECTED(execute_data == NULL)) {\n");
-                        out($f,$prolog."\tstatic const void * const labels[] = {\n");
+                        out($f, $prolog."if (UNEXPECTED(execute_data == NULL)) {\n");
+                        out($f, $prolog."\tstatic const void * const labels[] = {\n");
                         gen_labels($f, $spec, ($kind == ZEND_VM_KIND_HYBRID) ? ZEND_VM_KIND_GOTO : $kind, $prolog."\t\t", $specs);
-                        out($f,$prolog."\t};\n");
-                        out($f,$prolog."\tzend_opcode_handlers = (const void **) labels;\n");
-                        out($f,$prolog."\tzend_handlers_count = sizeof(labels) / sizeof(void*);\n");
+                        out($f, $prolog."\t};\n");
+                        out($f, $prolog."\tzend_opcode_handlers = (const void **) labels;\n");
+                        out($f, $prolog."\tzend_handlers_count = sizeof(labels) / sizeof(void*);\n");
                         if ($kind == ZEND_VM_KIND_HYBRID) {
-                            out($f,$prolog."\tmemset(&hybrid_halt_op, 0, sizeof(hybrid_halt_op));\n");
-                            out($f,$prolog."\thybrid_halt_op.handler = (void*)&&HYBRID_HALT_LABEL;\n");
-	                        out($f,"#ifdef ZEND_VM_HYBRID_JIT_RED_ZONE_SIZE\n");
-	                        out($f,$prolog."\tmemset(vm_stack_data.hybrid_jit_red_zone, 0, ZEND_VM_HYBRID_JIT_RED_ZONE_SIZE);\n");
-	                        out($f,"#endif\n");
-	                        out($f,$prolog."\tif (zend_touch_vm_stack_data) {\n");
-	                        out($f,$prolog."\t\tzend_touch_vm_stack_data(&vm_stack_data);\n");
-	                        out($f,$prolog."\t}\n");
-                            out($f,$prolog."\tgoto HYBRID_HALT_LABEL;\n");
+                            out($f, $prolog."\tmemset(&hybrid_halt_op, 0, sizeof(hybrid_halt_op));\n");
+                            out($f, $prolog."\thybrid_halt_op.handler = (void*)&&HYBRID_HALT_LABEL;\n");
+                            out($f, "#ifdef ZEND_VM_HYBRID_JIT_RED_ZONE_SIZE\n");
+                            out($f, $prolog."\tmemset(vm_stack_data.hybrid_jit_red_zone, 0, ZEND_VM_HYBRID_JIT_RED_ZONE_SIZE);\n");
+                            out($f, "#endif\n");
+                            out($f, $prolog."\tif (zend_touch_vm_stack_data) {\n");
+                            out($f, $prolog."\t\tzend_touch_vm_stack_data(&vm_stack_data);\n");
+                            out($f, $prolog."\t}\n");
+                            out($f, $prolog."\tgoto HYBRID_HALT_LABEL;\n");
                         } else {
-                            out($f,$prolog."\treturn;\n");
+                            out($f, $prolog."\treturn;\n");
                         }
-                        out($f,$prolog."}\n");
+                        out($f, $prolog."}\n");
                         if ($kind == ZEND_VM_KIND_HYBRID) {
-                            out($f,"#endif\n");
+                            out($f, "#endif\n");
                         }
                     } else {
                         skip_blanks($f, $m[1], $m[3]);
@@ -2120,19 +2149,19 @@ function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
                     break;
                 case "ZEND_VM_CONTINUE_LABEL":
                     if ($kind == ZEND_VM_KIND_CALL || $kind == ZEND_VM_KIND_HYBRID) {
-                      // Only SWITCH dispatch method use it
-                        out($f,"#if !defined(ZEND_VM_FP_GLOBAL_REG) || !defined(ZEND_VM_IP_GLOBAL_REG)\n");
-                        out($f,$m[1]."\tint ret;".$m[3]."\n");
-                        out($f,"#endif\n");
-                    } else if ($kind == ZEND_VM_KIND_SWITCH) {
-                      // Only SWITCH dispatch method use it
-                        out($f,"zend_vm_continue:".$m[3]."\n");
+                        // Only SWITCH dispatch method use it
+                        out($f, "#if !defined(ZEND_VM_FP_GLOBAL_REG) || !defined(ZEND_VM_IP_GLOBAL_REG)\n");
+                        out($f, $m[1]."\tint ret;".$m[3]."\n");
+                        out($f, "#endif\n");
+                    } elseif ($kind == ZEND_VM_KIND_SWITCH) {
+                        // Only SWITCH dispatch method use it
+                        out($f, "zend_vm_continue:".$m[3]."\n");
                     } else {
                         skip_blanks($f, $m[1], $m[3]);
                     }
                     break;
                 case "ZEND_VM_DISPATCH":
-                  // Emit code that dispatches to opcode handler
+                    // Emit code that dispatches to opcode handler
                     switch ($kind) {
                         case ZEND_VM_KIND_SWITCH:
                             out($f, $m[1]."dispatch_handler = OPLINE->handler;\nzend_vm_dispatch:\n".$m[1]."switch ((int)(uintptr_t)dispatch_handler)".$m[3]."\n");
@@ -2141,18 +2170,19 @@ function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
                             out($f, $m[1]."goto *(void**)(OPLINE->handler);".$m[3]."\n");
                             break;
                         case ZEND_VM_KIND_HYBRID:
-                            out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+                            out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
                             out($f, $m[1]."HYBRID_SWITCH()".$m[3]."\n");
-                            out($f,"#else\n");
+                            out($f, "#else\n");
+                            // no break
                         case ZEND_VM_KIND_CALL:
-                            out($f,"#if defined(ZEND_VM_FP_GLOBAL_REG) && defined(ZEND_VM_IP_GLOBAL_REG)\n");
+                            out($f, "#if defined(ZEND_VM_FP_GLOBAL_REG) && defined(ZEND_VM_IP_GLOBAL_REG)\n");
                             out($f, $m[1]."((opcode_handler_t)OPLINE->handler)(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU);\n");
                             out($f, $m[1]."if (UNEXPECTED(!OPLINE))".$m[3]."\n");
-                            out($f,"#else\n");
+                            out($f, "#else\n");
                             out($f, $m[1]."if (UNEXPECTED((ret = ((opcode_handler_t)OPLINE->handler)(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU)) != 0))".$m[3]."\n");
-                            out($f,"#endif\n");
+                            out($f, "#endif\n");
                             if ($kind == ZEND_VM_KIND_HYBRID) {
-                                out($f,"#endif\n");
+                                out($f, "#endif\n");
                             }
                             break;
                     }
@@ -2161,17 +2191,18 @@ function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
                     if ($kind != ZEND_VM_KIND_CALL) {
                         // Emit executor code
                         if ($kind == ZEND_VM_KIND_HYBRID) {
-                            out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+                            out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
                         }
                         gen_executor_code($f, $spec, $kind, $m[1], $switch_labels);
                     }
                     if ($kind == ZEND_VM_KIND_CALL || $kind == ZEND_VM_KIND_HYBRID) {
                         // Executor is defined as a set of functions
                         if ($kind == ZEND_VM_KIND_HYBRID) {
-                            out($f,"#else\n");
+                            out($f, "#else\n");
                         }
-                        out($f,
-                                "#ifdef ZEND_VM_FP_GLOBAL_REG\n" .
+                        out(
+                            $f,
+                            "#ifdef ZEND_VM_FP_GLOBAL_REG\n" .
                                 $m[1]."execute_data = vm_stack_data.orig_execute_data;\n" .
                                 "# ifdef ZEND_VM_IP_GLOBAL_REG\n" .
                                 $m[1]."opline = vm_stack_data.orig_opline;\n" .
@@ -2187,9 +2218,10 @@ function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
                                 "# endif\n".
                                 $m[1]."\treturn;\n".
                                 $m[1]."}\n".
-                                "#endif\n");
+                                "#endif\n"
+                        );
                         if ($kind == ZEND_VM_KIND_HYBRID) {
-                            out($f,"#endif\n");
+                            out($f, "#endif\n");
                         }
                     }
                     break;
@@ -2202,35 +2234,35 @@ function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
                     out($f, $m[1].$initializer_name.$m[3]."\n");
                     break;
                 case "EXTERNAL_LABELS":
-                  // Emit code that initializes zend_opcode_handlers array
+                    // Emit code that initializes zend_opcode_handlers array
                     $prolog = $m[1];
                     if ($kind == ZEND_VM_KIND_GOTO) {
-                      // Labels are defined in the executor itself, so we call it
-                      // with execute_data NULL and it sets zend_opcode_handlers array
-                        out($f,$prolog."static const uint32_t specs[] = {\n");
+                        // Labels are defined in the executor itself, so we call it
+                        // with execute_data NULL and it sets zend_opcode_handlers array
+                        out($f, $prolog."static const uint32_t specs[] = {\n");
                         gen_specs($f, $prolog."\t", $specs);
-                        out($f,$prolog."};\n");
-                        out($f,$prolog."zend_spec_handlers = specs;\n");
-                        out($f,$prolog.$executor_name."_ex(NULL);\n");
+                        out($f, $prolog."};\n");
+                        out($f, $prolog."zend_spec_handlers = specs;\n");
+                        out($f, $prolog.$executor_name."_ex(NULL);\n");
                     } else {
-                        out($f,$prolog."static const void * const labels[] = {\n");
+                        out($f, $prolog."static const void * const labels[] = {\n");
                         gen_labels($f, $spec, ($kind == ZEND_VM_KIND_HYBRID) ? ZEND_VM_KIND_CALL : $kind, $prolog."\t", $specs, $switch_labels);
-                        out($f,$prolog."};\n");
-                        out($f,$prolog."static const uint32_t specs[] = {\n");
+                        out($f, $prolog."};\n");
+                        out($f, $prolog."static const uint32_t specs[] = {\n");
                         gen_specs($f, $prolog."\t", $specs);
-                        out($f,$prolog."};\n");
+                        out($f, $prolog."};\n");
                         if ($kind == ZEND_VM_KIND_HYBRID) {
-                            out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
-                            out($f,$prolog."zend_opcode_handler_funcs = labels;\n");
-                            out($f,$prolog."zend_spec_handlers = specs;\n");
-                            out($f,$prolog.$executor_name."_ex(NULL);\n");
-                            out($f,"#else\n");
+                            out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+                            out($f, $prolog."zend_opcode_handler_funcs = labels;\n");
+                            out($f, $prolog."zend_spec_handlers = specs;\n");
+                            out($f, $prolog.$executor_name."_ex(NULL);\n");
+                            out($f, "#else\n");
                         }
-                        out($f,$prolog."zend_opcode_handlers = labels;\n");
-                        out($f,$prolog."zend_handlers_count = sizeof(labels) / sizeof(void*);\n");
-                        out($f,$prolog."zend_spec_handlers = specs;\n");
+                        out($f, $prolog."zend_opcode_handlers = labels;\n");
+                        out($f, $prolog."zend_handlers_count = sizeof(labels) / sizeof(void*);\n");
+                        out($f, $prolog."zend_spec_handlers = specs;\n");
                         if ($kind == ZEND_VM_KIND_HYBRID) {
-                            out($f,"#endif\n");
+                            out($f, "#endif\n");
                         }
                     }
                     break;
@@ -2238,17 +2270,18 @@ function gen_executor($f, $skl, $spec, $kind, $executor_name, $initializer_name)
                     die("ERROR: Unknown keyword ".$m[2]." in skeleton file.\n");
             }
         } else {
-          // Copy the line as is
+            // Copy the line as is
             out($f, $line);
         }
     }
 }
 
-function parse_operand_spec($def, $lineno, $str, &$flags) {
+function parse_operand_spec($def, $lineno, $str, &$flags)
+{
     global $vm_op_decode;
 
     $flags = 0;
-    $a = explode("|",$str);
+    $a = explode("|", $str);
     foreach ($a as $val) {
         if (isset($vm_op_decode[$val])) {
             $flags |= $vm_op_decode[$val];
@@ -2265,11 +2298,12 @@ function parse_operand_spec($def, $lineno, $str, &$flags) {
     return array_flip($a);
 }
 
-function parse_ext_spec($def, $lineno, $str) {
+function parse_ext_spec($def, $lineno, $str)
+{
     global $vm_ext_decode;
 
     $flags = 0;
-    $a = explode("|",$str);
+    $a = explode("|", $str);
     foreach ($a as $val) {
         if (isset($vm_ext_decode[$val])) {
             $flags |= $vm_ext_decode[$val];
@@ -2280,7 +2314,8 @@ function parse_ext_spec($def, $lineno, $str) {
     return $flags;
 }
 
-function parse_spec_rules($def, $lineno, $str) {
+function parse_spec_rules($def, $lineno, $str)
+{
     global $used_extra_spec;
 
     $ret = array();
@@ -2289,7 +2324,7 @@ function parse_spec_rules($def, $lineno, $str) {
         $n = strpos($rule, "=");
         if ($n !== false) {
             $id = trim(substr($rule, 0, $n));
-            $val = trim(substr($rule, $n+1));
+            $val = trim(substr($rule, $n + 1));
             switch ($id) {
                 case "OP_DATA":
                     $ret["OP_DATA"] = parse_operand_spec($def, $lineno, $val, $devnull);
@@ -2331,7 +2366,10 @@ function parse_spec_rules($def, $lineno, $str) {
 }
 
 function gen_vm_opcodes_header(
-    array $opcodes, int $max_opcode, int $max_opcode_len, array $vm_op_flags
+    array $opcodes,
+    int $max_opcode,
+    int $max_opcode_len,
+    array $vm_op_flags
 ): string {
     $str = HEADER_TEXT;
     $str .= "#ifndef ZEND_VM_OPCODES_H\n#define ZEND_VM_OPCODES_H\n\n";
@@ -2387,10 +2425,11 @@ function gen_vm_opcodes_header(
     return $str;
 }
 
-function gen_vm($def, $skel) {
+function gen_vm($def, $skel)
+{
     global $definition_file, $skeleton_file, $executor_file,
-        $op_types, $list, $opcodes, $helpers, $params, $opnames,
-        $vm_op_flags, $used_extra_spec;
+    $op_types, $list, $opcodes, $helpers, $params, $opnames,
+    $vm_op_flags, $used_extra_spec;
 
     // Load definition file
     $in = @file($def);
@@ -2417,19 +2456,19 @@ function gen_vm($def, $skel) {
     $extra_num      = 256;
     foreach ($in as $line) {
         ++$lineno;
-        if (strpos($line,"ZEND_VM_HANDLER(") === 0 ||
-            strpos($line,"ZEND_VM_INLINE_HANDLER(") === 0 ||
-            strpos($line,"ZEND_VM_HOT_HANDLER(") === 0 ||
-            strpos($line,"ZEND_VM_HOT_NOCONST_HANDLER(") === 0 ||
-            strpos($line,"ZEND_VM_HOT_NOCONSTCONST_HANDLER(") === 0 ||
-            strpos($line,"ZEND_VM_HOT_SEND_HANDLER(") === 0 ||
-            strpos($line,"ZEND_VM_HOT_OBJ_HANDLER(") === 0 ||
-            strpos($line,"ZEND_VM_COLD_HANDLER(") === 0 ||
-            strpos($line,"ZEND_VM_COLD_CONST_HANDLER(") === 0 ||
-            strpos($line,"ZEND_VM_COLD_CONSTCONST_HANDLER(") === 0) {
-          // Parsing opcode handler's definition
+        if (strpos($line, "ZEND_VM_HANDLER(") === 0 ||
+            strpos($line, "ZEND_VM_INLINE_HANDLER(") === 0 ||
+            strpos($line, "ZEND_VM_HOT_HANDLER(") === 0 ||
+            strpos($line, "ZEND_VM_HOT_NOCONST_HANDLER(") === 0 ||
+            strpos($line, "ZEND_VM_HOT_NOCONSTCONST_HANDLER(") === 0 ||
+            strpos($line, "ZEND_VM_HOT_SEND_HANDLER(") === 0 ||
+            strpos($line, "ZEND_VM_HOT_OBJ_HANDLER(") === 0 ||
+            strpos($line, "ZEND_VM_COLD_HANDLER(") === 0 ||
+            strpos($line, "ZEND_VM_COLD_CONST_HANDLER(") === 0 ||
+            strpos($line, "ZEND_VM_COLD_CONSTCONST_HANDLER(") === 0) {
+            // Parsing opcode handler's definition
             if (preg_match(
-                    "/^
+                "/^
                         ZEND_VM_(HOT_|INLINE_|HOT_OBJ_|HOT_SEND_|HOT_NOCONST_|HOT_NOCONSTCONST_|COLD_|COLD_CONST_|COLD_CONSTCONST_)?HANDLER\(
                             \s*([0-9]+)\s*,
                             \s*([A-Z_][A-Z0-9_]*)\s*,
@@ -2439,8 +2478,9 @@ function gen_vm($def, $skel) {
                             (,\s*SPEC\(([A-Z_|=,]+)\)\s*)?
                         \)
                     $/x",
-                    $line,
-                    $m) == 0) {
+                $line,
+                $m
+            ) == 0) {
                 die("ERROR ($def:$lineno): Invalid ZEND_VM_HANDLER definition.\n");
             }
             $hot = !empty($m[1]) ? $m[1] : false;
@@ -2466,7 +2506,7 @@ function gen_vm($def, $skel) {
             if (isset($opnames[$op])) {
                 die("ERROR ($def:$lineno): Opcode with name '$op' is already defined.\n");
             }
-            $opcodes[$code] = array("op"=>$op,"op1"=>$op1,"op2"=>$op2,"code"=>"","flags"=>$flags,"hot"=>$hot);
+            $opcodes[$code] = array("op" => $op,"op1" => $op1,"op2" => $op2,"code" => "","flags" => $flags,"hot" => $hot);
             if (isset($m[9])) {
                 $opcodes[$code]["spec"] = parse_spec_rules($def, $lineno, $m[9]);
                 if (isset($opcodes[$code]["spec"]["NO_CONST_CONST"])) {
@@ -2479,17 +2519,17 @@ function gen_vm($def, $skel) {
             $opnames[$op] = $code;
             $handler = $code;
             $helper = null;
-            $list[$lineno] = array("handler"=>$handler);
-        } else if (strpos($line,"ZEND_VM_TYPE_SPEC_HANDLER(") === 0 ||
-                   strpos($line,"ZEND_VM_INLINE_TYPE_SPEC_HANDLER(") === 0 ||
-                   strpos($line,"ZEND_VM_HOT_TYPE_SPEC_HANDLER(") === 0 ||
-                   strpos($line,"ZEND_VM_HOT_NOCONST_TYPE_SPEC_HANDLER(") === 0 ||
-                   strpos($line,"ZEND_VM_HOT_NOCONSTCONST_TYPE_SPEC_HANDLER(") === 0 ||
-                   strpos($line,"ZEND_VM_HOT_SEND_TYPE_SPEC_HANDLER(") === 0 ||
-                   strpos($line,"ZEND_VM_HOT_OBJ_TYPE_SPEC_HANDLER(") === 0) {
-          // Parsing opcode handler's definition
+            $list[$lineno] = array("handler" => $handler);
+        } elseif (strpos($line, "ZEND_VM_TYPE_SPEC_HANDLER(") === 0 ||
+                   strpos($line, "ZEND_VM_INLINE_TYPE_SPEC_HANDLER(") === 0 ||
+                   strpos($line, "ZEND_VM_HOT_TYPE_SPEC_HANDLER(") === 0 ||
+                   strpos($line, "ZEND_VM_HOT_NOCONST_TYPE_SPEC_HANDLER(") === 0 ||
+                   strpos($line, "ZEND_VM_HOT_NOCONSTCONST_TYPE_SPEC_HANDLER(") === 0 ||
+                   strpos($line, "ZEND_VM_HOT_SEND_TYPE_SPEC_HANDLER(") === 0 ||
+                   strpos($line, "ZEND_VM_HOT_OBJ_TYPE_SPEC_HANDLER(") === 0) {
+            // Parsing opcode handler's definition
             if (preg_match(
-                    "/^
+                "/^
                         ZEND_VM_(HOT_|INLINE_|HOT_OBJ_|HOT_SEND_|HOT_NOCONST_|HOT_NOCONSTCONST_)?TYPE_SPEC_HANDLER\(
                             \s*([A-Z_|]+)\s*,
                             \s*((?:[^(,]|\([^()]*|(?R)*\))*),
@@ -2500,8 +2540,9 @@ function gen_vm($def, $skel) {
                             (,\s*SPEC\(([A-Z_|=,]+)\)\s*)?
                         \)
                     $/x",
-                    $line,
-                    $m) == 0) {
+                $line,
+                $m
+            ) == 0) {
                 die("ERROR ($def:$lineno): Invalid ZEND_VM_TYPE_HANDLER_HANDLER definition.\n");
             }
             $hot = !empty($m[1]) ? $m[1] : false;
@@ -2527,7 +2568,7 @@ function gen_vm($def, $skel) {
                 die("ERROR ($def:$lineno): Opcode with name '$code' is already defined.\n");
             }
             $used_extra_spec["TYPE"] = 1;
-            $opcodes[$code] = array("op"=>$op,"op1"=>$op1,"op2"=>$op2,"code"=>"","flags"=>$flags,"hot"=>$hot,"is_type_spec"=>true);
+            $opcodes[$code] = array("op" => $op,"op1" => $op1,"op2" => $op2,"code" => "","flags" => $flags,"hot" => $hot,"is_type_spec" => true);
             if (isset($m[10])) {
                 $opcodes[$code]["spec"] = parse_spec_rules($def, $lineno, $m[10]);
                 if (isset($opcodes[$code]["spec"]["NO_CONST_CONST"])) {
@@ -2540,14 +2581,14 @@ function gen_vm($def, $skel) {
             $opnames[$op] = $code;
             $handler = $code;
             $helper = null;
-            $list[$lineno] = array("handler"=>$handler);
-        } else if (strpos($line,"ZEND_VM_HELPER(") === 0 ||
-                   strpos($line,"ZEND_VM_INLINE_HELPER(") === 0 ||
-                   strpos($line,"ZEND_VM_COLD_HELPER(") === 0 ||
-                   strpos($line,"ZEND_VM_HOT_HELPER(") === 0) {
-          // Parsing helper's definition
+            $list[$lineno] = array("handler" => $handler);
+        } elseif (strpos($line, "ZEND_VM_HELPER(") === 0 ||
+                   strpos($line, "ZEND_VM_INLINE_HELPER(") === 0 ||
+                   strpos($line, "ZEND_VM_COLD_HELPER(") === 0 ||
+                   strpos($line, "ZEND_VM_HOT_HELPER(") === 0) {
+            // Parsing helper's definition
             if (preg_match(
-                    "/^
+                "/^
                         ZEND_VM(_INLINE|_COLD|_HOT)?_HELPER\(
                             \s*([A-Za-z_]+)\s*,
                             \s*([A-Z_|]+)\s*,
@@ -2556,8 +2597,9 @@ function gen_vm($def, $skel) {
                             (?:,\s*([^)]*)\s*)?
                         \)
                     $/x",
-                    $line,
-                    $m) == 0) {
+                $line,
+                $m
+            ) == 0) {
                 die("ERROR ($def:$lineno): Invalid ZEND_VM_HELPER definition.\n");
             }
             $inline = !empty($m[1]) && $m[1] === "_INLINE";
@@ -2576,7 +2618,7 @@ function gen_vm($def, $skel) {
              || ZEND_VM_KIND == ZEND_VM_KIND_SWITCH
              || (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID && $hot))
              && $param) {
-                foreach (explode(",", $param ) as $p) {
+                foreach (explode(",", $param) as $p) {
                     $p = trim($p);
                     if ($p !== "") {
                         $params[$p] = 1;
@@ -2584,19 +2626,20 @@ function gen_vm($def, $skel) {
                 }
             }
 
-            $helpers[$helper] = array("op1"=>$op1,"op2"=>$op2,"param"=>$param,"code"=>"","inline"=>$inline,"cold"=>$cold,"hot"=>$hot);
+            $helpers[$helper] = array("op1" => $op1,"op2" => $op2,"param" => $param,"code" => "","inline" => $inline,"cold" => $cold,"hot" => $hot);
 
             if (!empty($m[5])) {
                 $helpers[$helper]["spec"] = parse_spec_rules($def, $lineno, $m[5]);
             }
 
             $handler = null;
-            $list[$lineno] = array("helper"=>$helper);
-        } else if (strpos($line,"ZEND_VM_DEFINE_OP(") === 0) {
+            $list[$lineno] = array("helper" => $helper);
+        } elseif (strpos($line, "ZEND_VM_DEFINE_OP(") === 0) {
             if (preg_match(
-                    "/^ZEND_VM_DEFINE_OP\(\s*([0-9]+)\s*,\s*([A-Z_]+)\s*\);/",
-                    $line,
-                    $m) == 0) {
+                "/^ZEND_VM_DEFINE_OP\(\s*([0-9]+)\s*,\s*([A-Z_]+)\s*\);/",
+                $line,
+                $m
+            ) == 0) {
                 die("ERROR ($def:$lineno): Invalid ZEND_VM_DEFINE_OP definition.\n");
             }
             $code = (int)$m[1];
@@ -2615,13 +2658,13 @@ function gen_vm($def, $skel) {
             if (isset($opnames[$op])) {
                 die("ERROR ($def:$lineno): Opcode with name '$op' is already defined.\n");
             }
-            $opcodes[$code] = array("op"=>$op,"code"=>"");
+            $opcodes[$code] = array("op" => $op,"code" => "");
             $opnames[$op] = $code;
-        } else if ($handler !== null) {
-          // Add line of code to current opcode handler
+        } elseif ($handler !== null) {
+            // Add line of code to current opcode handler
             $opcodes[$handler]["code"] .= $line;
-        } else if ($helper !== null) {
-          // Add line of code to current helper
+        } elseif ($helper !== null) {
+            // Add line of code to current helper
             $helpers[$helper]["code"] .= $line;
         }
     }
@@ -2640,7 +2683,7 @@ function gen_vm($def, $skel) {
                 $code = $opnames[$op];
                 $opcodes[$code]['use'] = 1;
             }
-        } else if (preg_match_all("/ZEND_VM_DISPATCH_TO_HANDLER\(\s*([A-Z_]*)\s*\)/m", $dsc["code"], $mm, PREG_SET_ORDER)) {
+        } elseif (preg_match_all("/ZEND_VM_DISPATCH_TO_HANDLER\(\s*([A-Z_]*)\s*\)/m", $dsc["code"], $mm, PREG_SET_ORDER)) {
             foreach ($mm as $m) {
                 $op = $m[1];
                 if (!isset($opnames[$op])) {
@@ -2662,17 +2705,17 @@ function gen_vm($def, $skel) {
 
     // Insert header
     out($f, HEADER_TEXT);
-    fputs($f,"#include <stdio.h>\n");
-    fputs($f,"#include <zend.h>\n");
-    fputs($f,"#include <zend_vm_opcodes.h>\n\n");
+    fputs($f, "#include <stdio.h>\n");
+    fputs($f, "#include <zend.h>\n");
+    fputs($f, "#include <zend_vm_opcodes.h>\n\n");
 
-    fputs($f,"static const char *zend_vm_opcodes_names[".($max_opcode + 1)."] = {\n");
+    fputs($f, "static const char *zend_vm_opcodes_names[".($max_opcode + 1)."] = {\n");
     for ($i = 0; $i <= $max_opcode; $i++) {
-        fputs($f,"\t".(isset($opcodes[$i]["op"])?'"'.$opcodes[$i]["op"].'"':"NULL").",\n");
+        fputs($f, "\t".(isset($opcodes[$i]["op"]) ? '"'.$opcodes[$i]["op"].'"' : "NULL").",\n");
     }
     fputs($f, "};\n\n");
 
-    fputs($f,"static uint32_t zend_vm_opcodes_flags[".($max_opcode + 1)."] = {\n");
+    fputs($f, "static uint32_t zend_vm_opcodes_flags[".($max_opcode + 1)."] = {\n");
     for ($i = 0; $i <= $max_opcode; $i++) {
         fprintf($f, "\t0x%08x,\n", isset($opcodes[$i]["flags"]) ? $opcodes[$i]["flags"] : 0);
     }
@@ -2743,7 +2786,9 @@ function gen_vm($def, $skel) {
 
     out($f, "static uint8_t zend_user_opcodes[256] = {");
     for ($i = 0; $i < 255; ++$i) {
-        if ($i % 16 == 1) out($f, "\n\t");
+        if ($i % 16 == 1) {
+            out($f, "\n\t");
+        }
         out($f, "$i,");
     }
     out($f, "255\n};\n\n");
@@ -2787,7 +2832,7 @@ function gen_vm($def, $skel) {
                 out($f, "\t\t{$else}if (spec & SPEC_RULE_RETVAL) {\n");
                 out($f, "\t\t\toffset = offset * 2 + (op->result_type != IS_UNUSED);\n");
                 out($f, "\t\t\tif ((spec & SPEC_RULE_OBSERVER) && ZEND_OBSERVER_ENABLED) {\n");
-                out($f,	"\t\t\t\toffset += 2;\n");
+                out($f, "\t\t\t\toffset += 2;\n");
                 out($f, "\t\t\t}\n");
                 $else = "} else ";
             }
@@ -2808,19 +2853,19 @@ function gen_vm($def, $skel) {
             }
             if (isset($used_extra_spec["SMART_BRANCH"])) {
                 out($f, "\t\t{$else}if (spec & SPEC_RULE_SMART_BRANCH) {\n");
-                out($f,	"\t\t\toffset = offset * 3;\n");
+                out($f, "\t\t\toffset = offset * 3;\n");
                 out($f, "\t\t\tif (op->result_type == (IS_SMART_BRANCH_JMPZ|IS_TMP_VAR)) {\n");
-                out($f,	"\t\t\t\toffset += 1;\n");
+                out($f, "\t\t\t\toffset += 1;\n");
                 out($f, "\t\t\t} else if (op->result_type == (IS_SMART_BRANCH_JMPNZ|IS_TMP_VAR)) {\n");
-                out($f,	"\t\t\t\toffset += 2;\n");
+                out($f, "\t\t\t\toffset += 2;\n");
                 out($f, "\t\t\t}\n");
                 $else = "} else ";
             }
             if (isset($used_extra_spec["OBSERVER"])) {
                 out($f, "\t\t{$else}if (spec & SPEC_RULE_OBSERVER) {\n");
-                out($f,	"\t\t\toffset = offset * 2;\n");
+                out($f, "\t\t\toffset = offset * 2;\n");
                 out($f, "\t\t\tif (ZEND_OBSERVER_ENABLED) {\n");
-                out($f,	"\t\t\t\toffset += 1;\n");
+                out($f, "\t\t\t\toffset += 1;\n");
                 out($f, "\t\t\t}\n");
                 $else = "} else ";
             }
@@ -2846,7 +2891,7 @@ function gen_vm($def, $skel) {
     if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID) {
         // Generate zend_vm_get_opcode_handler_func() function
         out($f, "#if ZEND_VM_KIND == ZEND_VM_KIND_HYBRID\n");
-        out($f,"static const void *zend_vm_get_opcode_handler_func(uint8_t opcode, const zend_op* op)\n");
+        out($f, "static const void *zend_vm_get_opcode_handler_func(uint8_t opcode, const zend_op* op)\n");
         out($f, "{\n");
         out($f, "\tuint32_t spec = zend_spec_handlers[opcode];\n");
         if (!ZEND_VM_SPEC) {
@@ -2958,9 +3003,9 @@ function gen_vm($def, $skel) {
         out($f, "ZEND_API int ZEND_FASTCALL zend_vm_call_opcode_handler(zend_execute_data* ex)\n");
         out($f, "{\n");
         if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID) {
-            out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+            out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
             out($f, "\topcode_handler_t handler;\n");
-            out($f,"#endif\n");
+            out($f, "#endif\n");
         }
         out($f, "\tint ret;\n");
         out($f, "#ifdef ZEND_VM_IP_GLOBAL_REG\n");
@@ -2974,18 +3019,18 @@ function gen_vm($def, $skel) {
         out($f, "#endif\n");
         out($f, "\n");
         out($f, "\tLOAD_OPLINE();\n");
-        out($f,"#if defined(ZEND_VM_FP_GLOBAL_REG) && defined(ZEND_VM_IP_GLOBAL_REG)\n");
+        out($f, "#if defined(ZEND_VM_FP_GLOBAL_REG) && defined(ZEND_VM_IP_GLOBAL_REG)\n");
         if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID) {
-            out($f,"#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
+            out($f, "#if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID)\n");
             out($f, "\thandler = (opcode_handler_t)zend_vm_get_opcode_handler_func(zend_user_opcodes[opline->opcode], opline);\n");
             out($f, "\thandler(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU);\n");
             out($f, "\tif (EXPECTED(opline != &hybrid_halt_op)) {\n");
-            out($f,"#else\n");
+            out($f, "#else\n");
         }
         out($f, "\t((opcode_handler_t)OPLINE->handler)(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU);\n");
         if (ZEND_VM_KIND == ZEND_VM_KIND_HYBRID) {
             out($f, "\tif (EXPECTED(opline)) {\n");
-            out($f,"#endif\n");
+            out($f, "#endif\n");
         } else {
             out($f, "\tif (EXPECTED(opline)) {\n");
         }
@@ -3018,7 +3063,8 @@ function gen_vm($def, $skel) {
     echo "zend_vm_execute.h generated successfully.\n";
 }
 
-function write_file_if_changed(string $filename, string $contents) {
+function write_file_if_changed(string $filename, string $contents)
+{
     if (file_exists($filename)) {
         $orig_contents = file_get_contents($filename);
         if ($orig_contents === $contents) {
@@ -3030,7 +3076,8 @@ function write_file_if_changed(string $filename, string $contents) {
     file_put_contents($filename, $contents);
 }
 
-function usage() {
+function usage()
+{
     echo("\nUsage: php zend_vm_gen.php [options]\n".
          "\nOptions:".
          "\n  --with-vm-kind=CALL|SWITCH|GOTO|HYBRID - select threading model (default is HYBRID)".
@@ -3041,7 +3088,7 @@ function usage() {
 
 // Parse arguments
 for ($i = 1; $i < $argc; $i++) {
-    if (strpos($argv[$i],"--with-vm-kind=") === 0) {
+    if (strpos($argv[$i], "--with-vm-kind=") === 0) {
         $kind = substr($argv[$i], strlen("--with-vm-kind="));
         switch ($kind) {
             case "CALL":
@@ -3061,13 +3108,13 @@ for ($i = 1; $i < $argc; $i++) {
                 usage();
                 die();
         }
-    } else if ($argv[$i] == "--without-specializer") {
+    } elseif ($argv[$i] == "--without-specializer") {
         // Disabling specialization
         define("ZEND_VM_SPEC", 0);
-    } else if ($argv[$i] == "--with-lines") {
+    } elseif ($argv[$i] == "--with-lines") {
         // Enabling debugging using original zend_vm_def.h
         define("ZEND_VM_LINES", 1);
-    } else if ($argv[$i] == "--help") {
+    } elseif ($argv[$i] == "--help") {
         usage();
         exit();
     } else {

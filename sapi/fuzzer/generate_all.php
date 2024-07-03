@@ -1,4 +1,5 @@
 <?php
+
 require __DIR__ . '/generate_unserialize_dict.php';
 require __DIR__ . '/generate_mbstring_dict.php';
 require __DIR__ . '/generate_unserializehash_corpus.php';

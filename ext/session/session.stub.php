@@ -19,50 +19,86 @@ const PHP_SESSION_NONE = UNKNOWN;
 const PHP_SESSION_ACTIVE = UNKNOWN;
 
 /** @refcount 1 */
-function session_name(?string $name = null): string|false {}
+function session_name(?string $name = null): string|false
+{
+}
 
 /** @refcount 1 */
-function session_module_name(?string $module = null): string|false {}
+function session_module_name(?string $module = null): string|false
+{
+}
 
 /** @refcount 1 */
-function session_save_path(?string $path = null): string|false {}
+function session_save_path(?string $path = null): string|false
+{
+}
 
-function session_id(?string $id = null): string|false {}
-
-/** @refcount 1 */
-function session_create_id(string $prefix = ""): string|false {}
-
-function session_regenerate_id(bool $delete_old_session = false): bool {}
-
-function session_decode(string $data): bool {}
+function session_id(?string $id = null): string|false
+{
+}
 
 /** @refcount 1 */
-function session_encode(): string|false {}
+function session_create_id(string $prefix = ""): string|false
+{
+}
 
-function session_destroy(): bool {}
+function session_regenerate_id(bool $delete_old_session = false): bool
+{
+}
 
-function session_unset(): bool {}
+function session_decode(string $data): bool
+{
+}
 
-function session_gc(): int|false {}
+/** @refcount 1 */
+function session_encode(): string|false
+{
+}
+
+function session_destroy(): bool
+{
+}
+
+function session_unset(): bool
+{
+}
+
+function session_gc(): int|false
+{
+}
 
 /**
  * @return array<string, mixed>
  * @refcount 1
  */
-function session_get_cookie_params(): array {}
+function session_get_cookie_params(): array
+{
+}
 
-function session_write_close(): bool {}
+function session_write_close(): bool
+{
+}
 
-function session_abort(): bool {}
+function session_abort(): bool
+{
+}
 
-function session_reset(): bool {}
+function session_reset(): bool
+{
+}
 
-function session_status(): int {}
+function session_status(): int
+{
+}
 
-function session_register_shutdown(): void {}
+function session_register_shutdown(): void
+{
+}
 
 /** @alias session_write_close */
-function session_commit(): bool {}
+function session_commit(): bool
+{
+}
 
 /**
  * @param callable|object $open
@@ -78,16 +114,25 @@ function session_set_save_handler(
     ?callable $create_sid = null,
     ?callable $validate_sid = null,
     ?callable $update_timestamp = null
-): bool {}
+): bool {
+}
 
 /** @refcount 1 */
-function session_cache_limiter(?string $value = null): string|false {}
+function session_cache_limiter(?string $value = null): string|false
+{
+}
 
-function session_cache_expire(?int $value = null): int|false {}
+function session_cache_expire(?int $value = null): int|false
+{
+}
 
-function session_set_cookie_params(array|int $lifetime_or_options, ?string $path = null, ?string $domain = null, ?bool $secure = null, ?bool $httponly = null): bool {}
+function session_set_cookie_params(array|int $lifetime_or_options, ?string $path = null, ?string $domain = null, ?bool $secure = null, ?bool $httponly = null): bool
+{
+}
 
-function session_start(array $options = []): bool {}
+function session_start(array $options = []): bool
+{
+}
 
 interface SessionHandlerInterface
 {
@@ -128,23 +173,37 @@ interface SessionUpdateTimestampHandlerInterface
 class SessionHandler implements SessionHandlerInterface, SessionIdInterface
 {
     /** @tentative-return-type */
-    public function open(string $path, string $name): bool {}
+    public function open(string $path, string $name): bool
+    {
+    }
 
     /** @tentative-return-type */
-    public function close(): bool {}
+    public function close(): bool
+    {
+    }
 
     /** @tentative-return-type */
-    public function read(string $id): string|false {}
+    public function read(string $id): string|false
+    {
+    }
 
     /** @tentative-return-type */
-    public function write(string $id, string $data): bool {}
+    public function write(string $id, string $data): bool
+    {
+    }
 
     /** @tentative-return-type */
-    public function destroy(string $id): bool {}
+    public function destroy(string $id): bool
+    {
+    }
 
     /** @tentative-return-type */
-    public function gc(int $max_lifetime): int|false {}
+    public function gc(int $max_lifetime): int|false
+    {
+    }
 
     /** @tentative-return-type */
-    public function create_sid(): string {}
+    public function create_sid(): string
+    {
+    }
 }

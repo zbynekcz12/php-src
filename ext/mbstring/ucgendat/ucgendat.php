@@ -1,5 +1,7 @@
 #!/usr/bin/env php
-<?php error_reporting(E_ALL);
+<?php
+
+error_reporting(E_ALL);
 
 /**
  * This is based on the ucgendat.c file from the OpenLDAP project, licensed as
@@ -66,7 +68,7 @@ foreach ($files as $file) {
 
 $outputFile = __DIR__ . "/../unicode_data.h";
 
-$data = new UnicodeData;
+$data = new UnicodeData();
 parseUnicodeData($data, file_get_contents($unicodeDataFile));
 parseCaseFolding($data, file_get_contents($caseFoldingFile));
 parseSpecialCasing($data, file_get_contents($specialCasingFile));
@@ -78,24 +80,28 @@ $eawFile = __DIR__ . "/../libmbfl/mbfl/eaw_table.h";
 $eawData = parseEastAsianWidth(file_get_contents($eastAsianWidthFile));
 file_put_contents($eawFile, generateEastAsianWidthData($eawData));
 
-class Range {
+class Range
+{
     public $start;
     public $end;
 
-    public function __construct(int $start, int $end) {
+    public function __construct(int $start, int $end)
+    {
         $this->start = $start;
         $this->end = $end;
     }
 }
 
-class UnicodeData {
+class UnicodeData
+{
     public $propIndexes;
     public $numProps;
     public $propRanges;
     public $caseMaps;
     public $extraCaseData;
 
-    public function __construct() {
+    public function __construct()
+    {
         /*
          * List of properties expected to be found in the Unicode Character Database.
          */
@@ -120,7 +126,8 @@ class UnicodeData {
         $this->extraCaseData = [];
     }
 
-    function propToIndex(string $prop) : int {
+    public function propToIndex(string $prop): int
+    {
         /* Deal with directionality codes introduced in Unicode 3.0. */
         if (in_array($prop, ["BN", "NSM", "PDF", "LRE", "LRO", "RLE", "RLO", "LRI", "RLI", "FSI", "PDI"])) {
             /*
@@ -147,7 +154,8 @@ class UnicodeData {
         return $this->propIndexes[$prop];
     }
 
-    public function addProp(int $code, string $prop) {
+    public function addProp(int $code, string $prop)
+    {
         $propIdx = self::propToIndex($prop);
 
         // Check if this extends the last range
@@ -163,16 +171,19 @@ class UnicodeData {
         $this->propRanges[$propIdx][] = new Range($code, $code);
     }
 
-    public function addPropRange(int $startCode, int $endCode, string $prop) {
+    public function addPropRange(int $startCode, int $endCode, string $prop)
+    {
         $propIdx = self::propToIndex($prop);
         $this->propRanges[$propIdx][] = new Range($startCode, $endCode);
     }
 
-    public function addCaseMapping(string $case, int $origCode, int $mappedCode) {
+    public function addCaseMapping(string $case, int $origCode, int $mappedCode)
+    {
         $this->caseMaps[$case][$origCode] = $mappedCode;
     }
 
-    public function compactRangeArray(array $ranges) : array {
+    public function compactRangeArray(array $ranges): array
+    {
         // Sort by start codepoint
         usort($ranges, function (Range $r1, Range $r2) {
             return $r1->start <=> $r2->start;
@@ -183,16 +194,18 @@ class UnicodeData {
         foreach ($ranges as $range) {
             if ($lastRange->end == -1) {
                 $lastRange = $range;
-            } else if ($range->start == $lastRange->end + 1) {
+            } elseif ($range->start == $lastRange->end + 1) {
                 $lastRange->end = $range->end;
-            } else if ($range->start > $lastRange->end + 1) {
+            } elseif ($range->start > $lastRange->end + 1) {
                 $newRanges[] = $lastRange;
                 $lastRange = $range;
             } else {
                 throw new Exception(sprintf(
                     "Overlapping ranges [%x, %x] and [%x, %x]",
-                    $lastRange->start, $lastRange->end,
-                    $range->start, $range->end
+                    $lastRange->start,
+                    $lastRange->end,
+                    $range->start,
+                    $range->end
                 ));
             }
         }
@@ -202,14 +215,16 @@ class UnicodeData {
         return $newRanges;
     }
 
-    public function compactPropRanges() {
+    public function compactPropRanges()
+    {
         foreach ($this->propRanges as &$ranges) {
             $ranges = $this->compactRangeArray($ranges);
         }
     }
 }
 
-function parseDataFile(string $input) {
+function parseDataFile(string $input)
+{
     $lines = explode("\n", $input);
     foreach ($lines as $line) {
         // Strip comments
@@ -228,7 +243,8 @@ function parseDataFile(string $input) {
     }
 }
 
-function parseUnicodeData(UnicodeData $data, string $input) : void {
+function parseUnicodeData(UnicodeData $data, string $input): void
+{
     $lines = parseDataFile($input);
     foreach ($lines as $fields) {
         if (count($fields) != 15) {
@@ -277,7 +293,8 @@ function parseUnicodeData(UnicodeData $data, string $input) : void {
     }
 }
 
-function parseCodes(string $strCodes) : array {
+function parseCodes(string $strCodes): array
+{
     $codes = [];
     foreach (explode(' ', $strCodes) as $strCode) {
         $codes[] = intval($strCode, 16);
@@ -285,7 +302,8 @@ function parseCodes(string $strCodes) : array {
     return $codes;
 }
 
-function parseCaseFolding(UnicodeData $data, string $input) : void {
+function parseCaseFolding(UnicodeData $data, string $input): void
+{
     foreach (parseDataFile($input) as $fields) {
         if (count($fields) != 4) {
             throw new Exception("Line does not contain 4 fields");
@@ -307,7 +325,7 @@ function parseCaseFolding(UnicodeData $data, string $input) : void {
                 assert(is_array($data->caseMaps['fold'][$code]));
                 $data->caseMaps['fold'][$code][0] = $foldCode;
             }
-        } else if ($status == 'F') {
+        } elseif ($status == 'F') {
             $foldCodes = parseCodes($fields[2]);
             $existingFoldCode = $data->caseMaps['fold'][$code] ?? $code;
             $data->caseMaps['fold'][$code] = array_merge([$code], $foldCodes);
@@ -317,7 +335,8 @@ function parseCaseFolding(UnicodeData $data, string $input) : void {
     }
 }
 
-function addSpecialCasing(UnicodeData $data, string $type, int $code, array $caseCodes) : void {
+function addSpecialCasing(UnicodeData $data, string $type, int $code, array $caseCodes): void
+{
     $simpleCaseCode = $data->caseMaps[$type][$code] ?? $code;
     if (count($caseCodes) == 1) {
         if ($caseCodes[0] != $simpleCaseCode) {
@@ -340,7 +359,8 @@ function addSpecialCasing(UnicodeData $data, string $type, int $code, array $cas
     $data->caseMaps[$type][$code] = array_merge([$simpleCaseCode], $caseCodes);
 }
 
-function parseSpecialCasing(UnicodeData $data, string $input) : void {
+function parseSpecialCasing(UnicodeData $data, string $input): void
+{
     foreach (parseDataFile($input) as $fields) {
         if (count($fields) != 5 && count($fields) != 6) {
             throw new Exception("Line does not contain 5 or 6 fields");
@@ -365,7 +385,8 @@ function parseSpecialCasing(UnicodeData $data, string $input) : void {
     }
 }
 
-function parseDerivedCoreProperties(UnicodeData $data, string $input) : void {
+function parseDerivedCoreProperties(UnicodeData $data, string $input): void
+{
     foreach (parseDataFile($input) as $fields) {
         $fieldCount = count($fields);
         if ($fieldCount != 2 && $fieldCount !== 3) {
@@ -375,11 +396,9 @@ function parseDerivedCoreProperties(UnicodeData $data, string $input) : void {
         $usedProperties = ['Cased', 'Case_Ignorable'];
         if (isset($fields[2]) && in_array($fields[2], $usedProperties, true)) {
             $property = $fields[2];
-        }
-        elseif (!in_array($fields[1], $usedProperties, true)) {
+        } elseif (!in_array($fields[1], $usedProperties, true)) {
             continue;
-        }
-        else{
+        } else {
             $property = $fields[1];
         }
 
@@ -387,7 +406,7 @@ function parseDerivedCoreProperties(UnicodeData $data, string $input) : void {
         $range = explode('..', $fields[0]);
         if (count($range) == 2) {
             $data->addPropRange(intval($range[0], 16), intval($range[1], 16), $property);
-        } else if (count($range) == 1) {
+        } elseif (count($range) == 1) {
             $data->addProp(intval($range[0], 16), $property);
         } else {
             throw new Exception("Invalid range");
@@ -395,7 +414,8 @@ function parseDerivedCoreProperties(UnicodeData $data, string $input) : void {
     }
 }
 
-function parseEastAsianWidth(string $input) : array {
+function parseEastAsianWidth(string $input): array
+{
     $wideRanges = [];
 
     foreach (parseDataFile($input) as $fields) {
@@ -432,7 +452,8 @@ function parseEastAsianWidth(string $input) : array {
     return $wideRanges;
 }
 
-function formatArray(array $values, int $width, string $format) : string {
+function formatArray(array $values, int $width, string $format): string
+{
     $result = '';
     $i = 0;
     $c = count($values);
@@ -447,17 +468,21 @@ function formatArray(array $values, int $width, string $format) : string {
     return $result;
 }
 
-function formatShortHexArray(array $values, int $width) : string {
+function formatShortHexArray(array $values, int $width): string
+{
     return formatArray($values, $width, "0x%04x");
 }
-function formatShortDecArray(array $values, int $width) : string {
+function formatShortDecArray(array $values, int $width): string
+{
     return formatArray($values, $width, "% 5d");
 }
-function formatIntArray(array $values, int $width) : string {
+function formatIntArray(array $values, int $width): string
+{
     return formatArray($values, $width, "0x%08x");
 }
 
-function generatePropData(UnicodeData $data) {
+function generatePropData(UnicodeData $data)
+{
     $data->compactPropRanges();
 
     $propOffsets = [];
@@ -465,7 +490,7 @@ function generatePropData(UnicodeData $data) {
     foreach ($data->propRanges as $ranges) {
         $num = count($ranges);
         $propOffsets[] = $idx;
-        $idx += 2*$num;
+        $idx += 2 * $num;
     }
 
     // Add sentinel for binary search
@@ -500,7 +525,8 @@ function generatePropData(UnicodeData $data) {
     return $result;
 }
 
-function flatten(array $array) {
+function flatten(array $array)
+{
     $result = [];
     foreach ($array as $arr) {
         foreach ($arr as $v) {
@@ -510,7 +536,8 @@ function flatten(array $array) {
     return $result;
 }
 
-function prepareCaseData(UnicodeData $data) {
+function prepareCaseData(UnicodeData $data)
+{
     // Don't store titlecase if it's the same as uppercase
     foreach ($data->caseMaps['title'] as $code => $titleCode) {
         if ($titleCode == ($data->caseMaps['upper'][$code] ?? $code)) {
@@ -536,7 +563,8 @@ function prepareCaseData(UnicodeData $data) {
     }
 }
 
-function generateCaseMPH(string $name, array $map) {
+function generateCaseMPH(string $name, array $map)
+{
     $prefix = "_uccase_" . $name;
     list($gTable, $table) = generateMPH($map, $fast = false);
     echo "$name: n=", count($table), ", g=", count($gTable), "\n";
@@ -553,7 +581,8 @@ function generateCaseMPH(string $name, array $map) {
     return $result;
 }
 
-function generateCaseData(UnicodeData $data) {
+function generateCaseData(UnicodeData $data)
+{
     prepareCaseData($data);
 
     $result = "";
@@ -567,7 +596,8 @@ function generateCaseData(UnicodeData $data) {
     return $result;
 }
 
-function generateData(UnicodeData $data) {
+function generateData(UnicodeData $data)
+{
     $result = <<<'HEADER'
 /* This file was generated from a modified version of UCData's ucgendat.
  *
@@ -597,13 +627,15 @@ HEADER;
  * MPH implementation based on http://stevehanov.ca/blog/index.php?id=119.
  */
 
-function hashInt(int $d, int $x) {
+function hashInt(int $d, int $x)
+{
     $x ^= $d;
     $x = (($x >> 16) ^ $x) * 0x45d9f3b;
     return $x & 0xffffffff;
 }
 
-function tryGenerateMPH(array $map, int $gSize) {
+function tryGenerateMPH(array $map, int $gSize)
+{
     $tableSize = count($map);
     $table = [];
     $gTable = array_fill(0, $gSize, 0x7fff);
@@ -681,7 +713,8 @@ function tryGenerateMPH(array $map, int $gSize) {
     return [$gTable, $table];
 }
 
-function generateMPH(array $map, bool $fast) {
+function generateMPH(array $map, bool $fast)
+{
     if ($fast) {
         // Check size starting lambda=5.0 in 0.5 increments
         for ($lambda = 5.0;; $lambda -= 0.5) {
@@ -707,7 +740,8 @@ function generateMPH(array $map, bool $fast) {
     return $mph;
 }
 
-function generateEastAsianWidthData(array $wideRanges) {
+function generateEastAsianWidthData(array $wideRanges)
+{
     $result = <<<'HEADER'
 /* This file was generated by ext/mbstring/ucgendat/ucgendat.php.
  *

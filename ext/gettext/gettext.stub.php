@@ -3,39 +3,59 @@
 /** @generate-class-entries */
 
 /** @refcount 1 */
-function textdomain(?string $domain = null): string {}
+function textdomain(?string $domain = null): string
+{
+}
 
 /** @refcount 1 */
-function gettext(string $message): string {}
+function gettext(string $message): string
+{
+}
 
 /** @alias gettext */
-function _(string $message): string {}
+function _(string $message): string
+{
+}
 
 /** @refcount 1 */
-function dgettext(string $domain, string $message): string {}
+function dgettext(string $domain, string $message): string
+{
+}
 
 /** @refcount 1 */
-function dcgettext(string $domain, string $message, int $category): string {}
+function dcgettext(string $domain, string $message, int $category): string
+{
+}
 
 /** @refcount 1 */
-function bindtextdomain(string $domain, ?string $directory = null): string|false {}
+function bindtextdomain(string $domain, ?string $directory = null): string|false
+{
+}
 
 #ifdef HAVE_NGETTEXT
 /** @refcount 1 */
-function ngettext(string $singular, string $plural, int $count): string {}
+function ngettext(string $singular, string $plural, int $count): string
+{
+}
 #endif
 
 #ifdef HAVE_DNGETTEXT
 /** @refcount 1 */
-function dngettext(string $domain, string $singular, string $plural, int $count): string {}
+function dngettext(string $domain, string $singular, string $plural, int $count): string
+{
+}
 #endif
 
 #ifdef HAVE_DCNGETTEXT
 /** @refcount 1 */
-function dcngettext(string $domain, string $singular, string $plural, int $count, int $category): string {}
+function dcngettext(string $domain, string $singular, string $plural, int $count, int $category): string
+{
+}
 #endif
 
 #ifdef HAVE_BIND_TEXTDOMAIN_CODESET
 /** @refcount 1 */
-function bind_textdomain_codeset(string $domain, ?string $codeset = null): string|false {}
+function bind_textdomain_codeset(string $domain, ?string $codeset = null): string|false
+{
+}
 #endif

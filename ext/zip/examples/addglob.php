@@ -1,6 +1,6 @@
 <?php
 
-$z = new ZipArchive;
+$z = new ZipArchive();
 $z->open('a.zip', ZIPARCHIVE::CREATE);
 
 /* or 'remove_all_path' => 0*/

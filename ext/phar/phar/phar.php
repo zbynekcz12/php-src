@@ -10,8 +10,7 @@
  * Phar Command
  */
 
-if (!extension_loaded('phar'))
-{
+if (!extension_loaded('phar')) {
     if (!class_exists('PHP_Archive', 0)) {
         echo "Neither Extension Phar nor class PHP_Archive are available.\n";
         exit(1);
@@ -19,13 +18,12 @@ if (!extension_loaded('phar'))
     if (!in_array('phar', stream_get_wrappers())) {
         stream_wrapper_register('phar', 'PHP_Archive');
     }
-    if (!class_exists('Phar',0)) {
+    if (!class_exists('Phar', 0)) {
         require 'phar://'.__FILE__.'/phar.inc';
     }
 }
 
-foreach(array("SPL", "Reflection") as $ext)
-{
+foreach(array("SPL", "Reflection") as $ext) {
     if (!extension_loaded($ext)) {
         echo "$argv[0] requires PHP extension $ext.\n";
         exit(1);

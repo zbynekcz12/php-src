@@ -1,4 +1,5 @@
 <?php
+
 error_reporting(E_ALL);
 if (!extension_loaded('zip')) {
     dl('zip.so');
@@ -10,7 +11,7 @@ $file = 'foo.php';
 
 echo "== Create with per file password\n";
 
-$zip  = new ZipArchive;
+$zip  = new ZipArchive();
 $zip->open($name, ZIPARCHIVE::CREATE | ZipArchive::OVERWRITE);
 $zip->addFile(__FILE__, $file);
 $zip->setEncryptionName($file, ZipArchive::EM_AES_256, $pass);
@@ -18,7 +19,7 @@ $zip->close();
 
 echo "== Create with global password\n";
 
-$zip  = new ZipArchive;
+$zip  = new ZipArchive();
 $zip->open($name, ZIPARCHIVE::CREATE | ZipArchive::OVERWRITE);
 $zip->setPassword($pass);
 $zip->addFile(__FILE__, $file);
