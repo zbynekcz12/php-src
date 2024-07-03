@@ -1,4 +1,5 @@
 <?php
+
 if (!extension_loaded('zip')) {
     dl('zip.so');
 }

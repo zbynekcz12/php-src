@@ -13,4 +13,6 @@ class PDOException extends RuntimeException
  * @return array<int, string>
  * @refcount 1
  */
-function pdo_drivers(): array {}
+function pdo_drivers(): array
+{
+}

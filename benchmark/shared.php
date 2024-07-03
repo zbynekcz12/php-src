@@ -1,11 +1,13 @@
 <?php
 
-class ProcessResult {
+class ProcessResult
+{
     public $stdout;
     public $stderr;
 }
 
-function runCommand(array $args, ?string $cwd = null): ProcessResult {
+function runCommand(array $args, ?string $cwd = null): ProcessResult
+{
     $cmd = implode(' ', array_map('escapeshellarg', $args));
     $pipes = null;
     $result = new ProcessResult();
@@ -59,7 +61,8 @@ function runCommand(array $args, ?string $cwd = null): ProcessResult {
     return $result;
 }
 
-function cloneRepo(string $path, string $url) {
+function cloneRepo(string $path, string $url)
+{
     if (is_dir($path)) {
         return;
     }

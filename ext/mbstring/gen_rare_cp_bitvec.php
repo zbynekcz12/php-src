@@ -58,4 +58,3 @@ $result .= "\n};\n";
 file_put_contents(__DIR__ . '/rare_cp_bitvec.h', $result);
 
 echo "Done.\n";
-?>

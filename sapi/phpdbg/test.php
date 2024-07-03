@@ -1,24 +1,29 @@
 <?php
+
 if (isset($include)) {
-    include (sprintf("%s/web-bootstrap.php", dirname(__FILE__)));
+    include(sprintf("%s/web-bootstrap.php", dirname(__FILE__)));
 }
 
 $stdout = fopen("php://stdout", "w+");
 
-class phpdbg {
+class phpdbg
+{
     private $sprintf = "%s: %s\n";
 
-    public function isGreat($greeting = null) {
+    public function isGreat($greeting = null)
+    {
         printf($this->sprintf, __METHOD__, $greeting);
         return $this;
     }
 }
 
-function mine() {
+function mine()
+{
     var_dump(func_get_args());
 }
 
-function test($x, $y = 0) {
+function test($x, $y = 0)
+{
     $var = $x + 1;
     $var += 2;
     $var <<= 3;
@@ -35,15 +40,18 @@ function test($x, $y = 0) {
 $dbg = new phpdbg();
 
 var_dump(
-    $dbg->isGreat("PHP Rocks!!"));
+    $dbg->isGreat("PHP Rocks!!")
+);
 
-foreach (test(1,2) as $gen)
+foreach (test(1, 2) as $gen) {
     continue;
+}
 
 echo "it works!\n";
 
-if (isset($dump))
+if (isset($dump)) {
     var_dump($_SERVER);
+}
 
 function phpdbg_test_ob()
 {
@@ -65,19 +73,21 @@ $array = [
 $array[] = 7;
 
 array_walk($array, function (&$item) {
-    if (is_array($item))
+    if (is_array($item)) {
         $item[0] += 2;
-    else
+    } else {
         $item -= 1;
+    }
 });
 
-class testClass {
+class testClass
+{
     public $a = 2;
-    protected  $b = [1, 3];
+    protected $b = [1, 3];
     private $c = 7;
 }
 
-$obj = new testClass;
+$obj = new testClass();
 
 $test = $obj->a;
 

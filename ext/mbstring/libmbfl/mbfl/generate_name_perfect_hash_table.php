@@ -1,6 +1,7 @@
 <?php
 
-function read_encoding_pointer_array(): array {
+function read_encoding_pointer_array(): array
+{
     // read the encoding pointer array
     $file_content = file_get_contents(__DIR__ . '/mbfl_encoding.c');
     $pattern = '/static const mbfl_encoding \*mbfl_encoding_ptr_list\[\][\s\S]*?\{([^}]*)\};/';
@@ -102,8 +103,7 @@ preg_match($pattern, $output, $matches);
 assert(isset($matches[1]));
 $word_list = trim($matches[1], "\t \n{");
 $word_list = str_replace('(char*)0', '-1', $word_list);
-foreach ($encoding_pointer_array_name_mapping as $key => $value)
-{
+foreach ($encoding_pointer_array_name_mapping as $key => $value) {
     $index = array_search($key, $encoding_pointer_array);
     $word_list = str_replace("\"$value\"", $index, $word_list);
 }

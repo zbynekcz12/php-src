@@ -1,5 +1,7 @@
 #!/usr/bin/env php
-<?php error_reporting(E_ALL);
+<?php
+
+error_reporting(E_ALL);
 
 $dir = __DIR__;
 $unicodeDataFile = $dir . '/UnicodeData.txt';
@@ -18,7 +20,8 @@ testUnicodeData(file_get_contents($unicodeDataFile));
 testCaseFolding(file_get_contents($caseFoldingFile));
 testSpecialCasing(file_get_contents($specialCasingFile));
 
-function parseDataFile(string $input) {
+function parseDataFile(string $input)
+{
     $lines = explode("\n", $input);
     foreach ($lines as $line) {
         // Strip comments
@@ -37,7 +40,8 @@ function parseDataFile(string $input) {
     }
 }
 
-function parseCodes(string $strCodes) : array {
+function parseCodes(string $strCodes): array
+{
     $codes = [];
     foreach (explode(' ', $strCodes) as $strCode) {
         $codes[] = intval($strCode, 16);
@@ -45,7 +49,8 @@ function parseCodes(string $strCodes) : array {
     return $codes;
 }
 
-function testCaseMap($type, int $origCode, array $newCodes) {
+function testCaseMap($type, int $origCode, array $newCodes)
+{
     $origChar = mb_chr($origCode);
     $newStr = "";
     foreach ($newCodes as $newCode) {
@@ -58,7 +63,8 @@ function testCaseMap($type, int $origCode, array $newCodes) {
     }
 }
 
-function testSimpleCaseMap($type, int $origCode, int $newCode) {
+function testSimpleCaseMap($type, int $origCode, int $newCode)
+{
     if ($newCode) {
         testCaseMap($type, $origCode, [$newCode]);
     } else {
@@ -66,7 +72,8 @@ function testSimpleCaseMap($type, int $origCode, int $newCode) {
     }
 }
 
-function testUnicodeData(string $input) {
+function testUnicodeData(string $input)
+{
     $uppers = [];
     $folds = [];
 
@@ -94,7 +101,8 @@ function testUnicodeData(string $input) {
     }
 }
 
-function testCaseFolding(string $input) {
+function testCaseFolding(string $input)
+{
     foreach (parseDataFile($input) as $fields) {
         assert(count($fields) == 4);
 
@@ -103,14 +111,15 @@ function testCaseFolding(string $input) {
         if ($status == 'C' || $status == 'S') {
             $foldCode = intval($fields[2], 16);
             testSimpleCaseMap(MB_CASE_FOLD_SIMPLE, $code, $foldCode);
-        } else if ($status == 'F') {
+        } elseif ($status == 'F') {
             $foldCodes = parseCodes($fields[2]);
             testCaseMap(MB_CASE_FOLD, $code, $foldCodes);
         }
     }
 }
 
-function testSpecialCasing(string $input) {
+function testSpecialCasing(string $input)
+{
     foreach (parseDataFile($input) as $fields) {
         assert(count($fields) >= 5);
 

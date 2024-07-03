@@ -5,25 +5,38 @@
  * @undocumentable
  */
 
-final class DoOperationNoCast {
+final class DoOperationNoCast
+{
     private int $val;
-    public function __construct(int $val) {}
+    public function __construct(int $val)
+    {
+    }
 }
 
-final class LongCastableNoOperations {
+final class LongCastableNoOperations
+{
     private int $val;
-    public function __construct(int $val) {}
+    public function __construct(int $val)
+    {
+    }
 }
-final class FloatCastableNoOperations {
+final class FloatCastableNoOperations
+{
     private float $val;
-    public function __construct(float $val) {}
+    public function __construct(float $val)
+    {
+    }
 }
-final class NumericCastableNoOperations {
+final class NumericCastableNoOperations
+{
     private int|float $val;
-    public function __construct(int|float $val) {}
+    public function __construct(int|float $val)
+    {
+    }
 }
 
-class DimensionHandlersNoArrayAccess {
+class DimensionHandlersNoArrayAccess
+{
     public bool $read = false;
     public bool $write = false;
     public bool $has = false;

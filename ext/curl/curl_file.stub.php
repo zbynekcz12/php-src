@@ -9,22 +9,34 @@ class CURLFile
     public string $mime = "";
     public string $postname = "";
 
-    public function __construct(string $filename, ?string $mime_type = null, ?string $posted_filename = null) {}
+    public function __construct(string $filename, ?string $mime_type = null, ?string $posted_filename = null)
+    {
+    }
 
     /** @tentative-return-type */
-    public function getFilename(): string {}
+    public function getFilename(): string
+    {
+    }
 
     /** @tentative-return-type */
-    public function getMimeType(): string {}
+    public function getMimeType(): string
+    {
+    }
 
     /** @tentative-return-type */
-    public function getPostFilename(): string {}
+    public function getPostFilename(): string
+    {
+    }
 
     /** @tentative-return-type */
-    public function setMimeType(string $mime_type): void {}
+    public function setMimeType(string $mime_type): void
+    {
+    }
 
     /** @tentative-return-type */
-    public function setPostFilename(string $posted_filename): void {}
+    public function setPostFilename(string $posted_filename): void
+    {
+    }
 }
 
 class CURLStringFile
@@ -33,5 +45,7 @@ class CURLStringFile
     public string $postname;
     public string $mime;
 
-    public function __construct(string $data, string $postname, string $mime = "application/octet-stream") {}
+    public function __construct(string $data, string $postname, string $mime = "application/octet-stream")
+    {
+    }
 }
