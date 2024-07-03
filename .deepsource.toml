@@ -1,0 +1,13 @@
+version = 1
+
+[[analyzers]]
+name = "php"
+
+  [analyzers.meta]
+  bootstrap_files = ["5"]
+
+[[analyzers]]
+name = "sql"
+
+[[transformers]]
+name = "php-cs-fixer"
