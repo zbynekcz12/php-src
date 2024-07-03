@@ -233,9 +233,8 @@ function ternary2($n) {
 
 /*****/
 
-function empty_loop($n) {
-    for ($i = 0; $i < $n; ++$i) {
-    }
+function empty_loop($n)
+{
 }
 
 function gethrtime()
