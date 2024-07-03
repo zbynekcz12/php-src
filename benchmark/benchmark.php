@@ -9,7 +9,8 @@ if (!file_exists($phpCgi)) {
     exit(1);
 }
 
-function main() {
+function main()
+{
     global $storeResult;
 
     $profilesDir = __DIR__ . '/profiles';
@@ -36,7 +37,8 @@ function main() {
     }
 }
 
-function storeResult(string $result) {
+function storeResult(string $result)
+{
     $repo = __DIR__ . '/repos/data';
     cloneRepo($repo, 'git@github.com:php/benchmarking-data.git');
 
@@ -49,16 +51,19 @@ function storeResult(string $result) {
     file_put_contents($summaryFile, $result);
 }
 
-function getPhpSrcCommitHash(): string {
+function getPhpSrcCommitHash(): string
+{
     $result = runCommand(['git', 'log', '--pretty=format:%H', '-n', '1'], dirname(__DIR__));
     return $result->stdout;
 }
 
-function runBench(bool $jit): array {
+function runBench(bool $jit): array
+{
     return runValgrindPhpCgiCommand('bench', [dirname(__DIR__) . '/Zend/bench.php'], jit: $jit);
 }
 
-function runSymfonyDemo(bool $jit): array {
+function runSymfonyDemo(bool $jit): array
+{
     $dir = __DIR__ . '/repos/symfony-demo-2.2.3';
     cloneRepo($dir, 'https://github.com/php/benchmarking-symfony-demo-2.2.3.git');
     runPhpCommand([$dir . '/bin/console', 'cache:clear']);
@@ -66,7 +71,8 @@ function runSymfonyDemo(bool $jit): array {
     return runValgrindPhpCgiCommand('symfony-demo', [$dir . '/public/index.php'], cwd: $dir, jit: $jit, warmup: 50, repeat: 50);
 }
 
-function runWordpress(bool $jit): array {
+function runWordpress(bool $jit): array
+{
     $dir = __DIR__ . '/repos/wordpress-6.2';
     cloneRepo($dir, 'https://github.com/php/benchmarking-wordpress-6.2.git');
 
@@ -89,7 +95,8 @@ function runWordpress(bool $jit): array {
     return runValgrindPhpCgiCommand('wordpress', [$dir . '/index.php'], cwd: $dir, jit: $jit, warmup: 50, repeat: 50);
 }
 
-function runPhpCommand(array $args, ?string $cwd = null): ProcessResult {
+function runPhpCommand(array $args, ?string $cwd = null): ProcessResult
+{
     return runCommand([PHP_BINARY, ...$args], $cwd);
 }
 
@@ -130,7 +137,8 @@ function runValgrindPhpCgiCommand(
     return ['instructions' => $instructions];
 }
 
-function extractInstructionsFromValgrindOutput(string $output): string {
+function extractInstructionsFromValgrindOutput(string $output): string
+{
     preg_match("(==[0-9]+== Events    : Ir\n==[0-9]+== Collected : (?<instructions>[0-9]+))", $output, $matches);
     return $matches['instructions'] ?? throw new \Exception('Unexpected valgrind output');
 }

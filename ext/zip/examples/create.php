@@ -1,4 +1,5 @@
 <?php
+
 error_reporting(E_ALL);
 if (!extension_loaded('zip')) {
     dl('zip.so');
@@ -16,7 +17,7 @@ if (!$zip->open($filename, ZIPARCHIVE::CREATE)) {
 
 $zip->addFromString("testfilephp.txt" . time(), "#1 This is a test string added as testfilephp.txt.\n");
 $zip->addFromString("testfilephp2.txt" . time(), "#2 This is a test string added as testfilephp2.txt.\n");
-$zip->addFile($thisdir . "/too.php","/testfromfile.php");
+$zip->addFile($thisdir . "/too.php", "/testfromfile.php");
 echo "numfiles: " . $zip->numFiles . "\n";
 echo "status:" . $zip->status . "\n";
 $zip->close();

@@ -9,6 +9,10 @@ namespace ZendTest\Iterators;
 
 final class TraversableTest implements \IteratorAggregate
 {
-    public function __construct() {}
-    public function getIterator(): \Iterator {}
+    public function __construct()
+    {
+    }
+    public function getIterator(): \Iterator
+    {
+    }
 }

@@ -3,38 +3,64 @@
 /** @generate-class-entries */
 
 /** @refcount 1 */
-function bcadd(string $num1, string $num2, ?int $scale = null): string {}
+function bcadd(string $num1, string $num2, ?int $scale = null): string
+{
+}
 
 /** @refcount 1 */
-function bcsub(string $num1, string $num2, ?int $scale = null): string {}
+function bcsub(string $num1, string $num2, ?int $scale = null): string
+{
+}
 
 /** @refcount 1 */
-function bcmul(string $num1, string $num2, ?int $scale = null): string {}
+function bcmul(string $num1, string $num2, ?int $scale = null): string
+{
+}
 
 /** @refcount 1 */
-function bcdiv(string $num1, string $num2, ?int $scale = null): string {}
+function bcdiv(string $num1, string $num2, ?int $scale = null): string
+{
+}
 
 /** @refcount 1 */
-function bcmod(string $num1, string $num2, ?int $scale = null): string {}
+function bcmod(string $num1, string $num2, ?int $scale = null): string
+{
+}
 
 /** @refcount 1 */
-function bcpowmod(string $num, string $exponent, string $modulus, ?int $scale = null): string {}
+function bcpowmod(string $num, string $exponent, string $modulus, ?int $scale = null): string
+{
+}
 
 /** @refcount 1 */
-function bcpow(string $num, string $exponent, ?int $scale = null): string {}
+function bcpow(string $num, string $exponent, ?int $scale = null): string
+{
+}
 
 /** @refcount 1 */
-function bcsqrt(string $num, ?int $scale = null): string {}
+function bcsqrt(string $num, ?int $scale = null): string
+{
+}
 
-function bccomp(string $num1, string $num2, ?int $scale = null): int {}
+function bccomp(string $num1, string $num2, ?int $scale = null): int
+{
+}
 
-function bcscale(?int $scale = null): int {}
+function bcscale(?int $scale = null): int
+{
+}
 
 /** @refcount 1 */
-function bcfloor(string $num): string {}
+function bcfloor(string $num): string
+{
+}
 
 /** @refcount 1 */
-function bcceil(string $num): string {}
+function bcceil(string $num): string
+{
+}
 
 /** @refcount 1 */
-function bcround(string $num, int $precision = 0, int $mode = PHP_ROUND_HALF_UP): string {}
+function bcround(string $num, int $precision = 0, int $mode = PHP_ROUND_HALF_UP): string
+{
+}

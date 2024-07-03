@@ -47,13 +47,19 @@ class php_user_filter
      * @param int $consumed
      * @tentative-return-type
      */
-    public function filter($in, $out, &$consumed, bool $closing): int {}
+    public function filter($in, $out, &$consumed, bool $closing): int
+    {
+    }
 
     /** @tentative-return-type */
-    public function onCreate(): bool {}
+    public function onCreate(): bool
+    {
+    }
 
     /** @tentative-return-type */
-    public function onClose(): void {}
+    public function onClose(): void
+    {
+    }
 }
 
 final class StreamBucket

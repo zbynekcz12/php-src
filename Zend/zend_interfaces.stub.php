@@ -2,7 +2,9 @@
 
 /** @generate-class-entries */
 
-interface Traversable {}
+interface Traversable
+{
+}
 
 interface IteratorAggregate extends Traversable
 {
@@ -71,15 +73,27 @@ interface Stringable
  */
 final class InternalIterator implements Iterator
 {
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
-    public function current(): mixed {}
+    public function current(): mixed
+    {
+    }
 
-    public function key(): mixed {}
+    public function key(): mixed
+    {
+    }
 
-    public function next(): void {}
+    public function next(): void
+    {
+    }
 
-    public function valid(): bool {}
+    public function valid(): bool
+    {
+    }
 
-    public function rewind(): void {}
+    public function rewind(): void
+    {
+    }
 }

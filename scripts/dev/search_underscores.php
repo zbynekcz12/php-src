@@ -45,7 +45,8 @@ foreach($classes as $c) {
     if (strpos($c, "_") !== false) {
         $err++;
         $ref = new ReflectionClass($c);
-        if (!($ext = $ref->getExtensionName())) {;
+        if (!($ext = $ref->getExtensionName())) {
+            ;
             $ext = $ref->isInternal() ? "<internal>" : "<user>";
         }
         if (!array_key_exists($ext, $extensions)) {
@@ -54,14 +55,12 @@ foreach($classes as $c) {
         $extensions[$ext][$c] = array();
         foreach(get_class_methods($c) as $method) {
             $cnt_methods++;
-            if (strpos(substr($method, substr($method, 0, 2) != "__"  ? 0 : 2), "_") !== false) {
+            if (strpos(substr($method, substr($method, 0, 2) != "__" ? 0 : 2), "_") !== false) {
                 $err++;
                 $extensions[$ext][$c][] = $method;
             }
         }
-    }
-    else
-    {
+    } else {
         $cnt_methods += count(get_class_methods($c));
     }
 }
@@ -91,5 +90,3 @@ foreach($extensions as $ext => &$classes) {
 }
 
 printf("\n");
-
-?>

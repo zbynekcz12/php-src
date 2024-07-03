@@ -2,7 +2,8 @@
 
 require_once __DIR__ . '/shared.php';
 
-function main(?string $headCommitHash, ?string $baseCommitHash) {
+function main(?string $headCommitHash, ?string $baseCommitHash)
+{
     if ($headCommitHash === null || $baseCommitHash === null) {
         fwrite(STDERR, "Usage: php generate_diff.php HEAD_COMMIT_HASH BASE_COMMIT_HASH\n");
         exit(1);
@@ -39,7 +40,8 @@ function main(?string $headCommitHash, ?string $baseCommitHash) {
     return $output;
 }
 
-function formatInstructions(?int $instructions): string {
+function formatInstructions(?int $instructions): string
+{
     if ($instructions === null) {
         return '-';
     }
@@ -52,7 +54,8 @@ function formatInstructions(?int $instructions): string {
     }
 }
 
-function formatDiff(?int $baseInstructions, int $headInstructions): string {
+function formatDiff(?int $baseInstructions, int $headInstructions): string
+{
     if ($baseInstructions === null) {
         return '-';
     }

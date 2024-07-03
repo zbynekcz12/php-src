@@ -182,19 +182,22 @@ foreach ($encodings as $e) {
     $map = array();
     $lines = explode("\n", file_get_contents($e{'file'}));
     foreach ($lines as $l) {
-        if (preg_match("/^0x([0-9A-Z]{2})\t0x([0-9A-Z]{2,})/i", $l, $matches))
+        if (preg_match("/^0x([0-9A-Z]{2})\t0x([0-9A-Z]{2,})/i", $l, $matches)) {
             $map[] = array($matches[1], $matches[2]);
+        }
     }
 
     $mappy = array();
-    foreach ($map as $v) { $mappy[hexdec($v[0])] = hexdec($v[1]); }
+    foreach ($map as $v) {
+        $mappy[hexdec($v[0])] = hexdec($v[1]);
+    }
 
     $mstable = array("ident" => $e['ident']);
     /* calculate two-stage tables */
     for ($i = 0; $i < 4; $i++) {
         for ($j = 0; $j < 64; $j++) {
             $cp = $i << 6 | $j;
-            $mstable[$i][$j] = isset($mappy[$cp]) ? $mappy[$cp] : NULL;
+            $mstable[$i][$j] = isset($mappy[$cp]) ? $mappy[$cp] : null;
         }
     }
 
@@ -204,7 +207,7 @@ foreach ($encodings as $e) {
     $s2tables_idents = array();
     for ($i = 0; $i < 4; $i++) {
         if (($t = array_keys($prevStage2, $mstable[$i])) !== array()) {
-            $s2tables_idents[$i] = $encodings[$t[0]/5]["ident"];
+            $s2tables_idents[$i] = $encodings[$t[0] / 5]["ident"];
             continue;
         }
 
@@ -213,13 +216,18 @@ foreach ($encodings as $e) {
         echo "static const enc_to_uni_stage2 enc_to_uni_s2_{$e['ident']}_".
             sprintf("%02X", $i << 6)." = { {\n";
         for ($j = 0; $j < 64; $j++) {
-            if ($j == 0) echo "\t";
-            elseif ($j % 6 == 0) echo "\n\t";
-            else echo " ";
-            if ($mstable[$i][$j] !== NULL)
+            if ($j == 0) {
+                echo "\t";
+            } elseif ($j % 6 == 0) {
+                echo "\n\t";
+            } else {
+                echo " ";
+            }
+            if ($mstable[$i][$j] !== null) {
                 echo sprintf("0x%04X,", $mstable[$i][$j]);
-            else
-                echo "0xFFFF,"; /* special value; indicates no mapping */
+            } else {
+                echo "0xFFFF,";
+            } /* special value; indicates no mapping */
         }
         echo "\n} };\n\n";
 
@@ -245,22 +253,25 @@ foreach ($encodings as $e) {
 "/* end of stage 1 table for {$e['name']} }}} */\n\n";
 }
 
-$maxencnum = max(array_map(function($e) { return $e['enumid']; }, $encodings));
+$maxencnum = max(array_map(function ($e) { return $e['enumid']; }, $encodings));
 $a = range(0, $maxencnum);
-foreach ($encodings as $e) { $a[$e['enumid']] = $e['ident']; }
+foreach ($encodings as $e) {
+    $a[$e['enumid']] = $e['ident'];
+}
 
-    echo
+echo
 "/* {{{ Index of tables for encoding conversion */
 static const enc_to_uni *const enc_to_uni_index[cs_numelems] = {\n";
 
 foreach ($a as $k => $v) {
-    if (is_numeric($v))
+    if (is_numeric($v)) {
         echo "\tNULL,\n";
-    else
+    } else {
         echo "\t&enc_to_uni_$v,\n";
+    }
 }
 
-    echo
+echo
 "};
 /* }}} */\n";
 
@@ -325,14 +336,16 @@ foreach ($encodings as $e) {
     $map = array();
     $lines = explode("\n", file_get_contents($e{'file'}));
     foreach ($lines as $l) {
-        if (preg_match("/^0x([0-9A-Z]{2})\t0x([0-9A-Z]{2,})\s+#\s*(.*)$/i", $l, $matches))
+        if (preg_match("/^0x([0-9A-Z]{2})\t0x([0-9A-Z]{2,})\s+#\s*(.*)$/i", $l, $matches)) {
             $map[] = array($matches[1], $matches[2], rtrim($matches[3]));
+        }
     }
 
     $mappy = array();
     foreach ($map as $v) {
-        if (hexdec($v[0]) >= $e['range'][0] && hexdec($v[0]) <= $e['range'][1])
+        if (hexdec($v[0]) >= $e['range'][0] && hexdec($v[0]) <= $e['range'][1]) {
             $mappy[hexdec($v[1])] = array(hexdec($v[0]), strtolower($v[2]));
+        }
     }
     ksort($mappy);
 
@@ -341,7 +354,7 @@ foreach ($encodings as $e) {
 
     foreach ($mappy as $k => $v) {
         echo "\t{ ", sprintf("0x%04X", $k), ", ", sprintf("0x%02X", $v[0]), " },\t/* ",
-            $v[1], " */\n";
+        $v[1], " */\n";
     }
     echo "};\n";
 
@@ -414,81 +427,89 @@ typedef struct {
 
 CODE;
 
-if (!$pass2)
+if (!$pass2) {
     echo $t;
+}
 
 $dp = array();
 
 foreach (explode("\n", $data) as $l) {
-	if (preg_match('/^(#?[a-z0-9]+)\s+([a-f0-9]+) ([a-f0-9]+)/i', $l, $matches)) {
-		//echo sprintf("\t{\"%-21s 1, 0x%05d},\n", $matches[1].",", $matches[2]);
-		$dp[] = array($matches[1], $matches[2], $matches[3]);
-	} else if (preg_match('/^(#?[a-z0-9]+)\s+([a-f0-9]+)/i', $l, $matches)) {
-		$dp[] = array($matches[1], $matches[2]);
-	}
+    if (preg_match('/^(#?[a-z0-9]+)\s+([a-f0-9]+) ([a-f0-9]+)/i', $l, $matches)) {
+        //echo sprintf("\t{\"%-21s 1, 0x%05d},\n", $matches[1].",", $matches[2]);
+        $dp[] = array($matches[1], $matches[2], $matches[3]);
+    } elseif (preg_match('/^(#?[a-z0-9]+)\s+([a-f0-9]+)/i', $l, $matches)) {
+        $dp[] = array($matches[1], $matches[2]);
+    }
 }
 
 $origdp = $dp;
 
-usort($dp, function($a, $b) { return hexdec($a[1])-hexdec($b[1]); });
+usort($dp, function ($a, $b) { return hexdec($a[1]) - hexdec($b[1]); });
 
 $multicp_rows = array();
 foreach ($dp as $el) {
-	if (count($el) == 3) {
-		$multicp_rows[$el[1]] = array();
-	}
+    if (count($el) == 3) {
+        $multicp_rows[$el[1]] = array();
+    }
 }
 
 foreach ($dp as $el) {
-	if (key_exists($el[1], $multicp_rows)) {
-		if (count($el) == 3)
-			$multicp_rows[$el[1]][$el[2]] = $el[0];
-		else
-			$multicp_rows[$el[1]]["default"] = $el[0];
-	}
+    if (key_exists($el[1], $multicp_rows)) {
+        if (count($el) == 3) {
+            $multicp_rows[$el[1]][$el[2]] = $el[0];
+        } else {
+            $multicp_rows[$el[1]]["default"] = $el[0];
+        }
+    }
 }
 
-if ($pass2 < 2)
+if ($pass2 < 2) {
     echo "/* {{{ Start of $name multi-stage table for codepoint -> entity */", "\n\n";
-else
+} else {
     echo "/* {{{ Start of $name table for codepoint -> entity */", "\n\n";
+}
 
-if (empty($multicp_rows))
+if (empty($multicp_rows)) {
     goto skip_multicp;
+}
 
 ksort($multicp_rows);
-foreach ($multicp_rows as &$v) { ksort($v); }
+foreach ($multicp_rows as &$v) {
+    ksort($v);
+}
 unset($v);
 
 echo
 "/* {{{ Start of double code point tables for $name */", "\n\n";
 
 foreach ($multicp_rows as $k => $v) {
-	echo "static const entity_multicodepoint_row multi_cp_{$ident}_",
-		sprintf("%05s", $k), "[] = {", "\n";
-	if (key_exists("default", $v)) {
-        if ($v['default'] == 'GT') /* hack to make > translate to &gt; not GT; */
+    echo "static const entity_multicodepoint_row multi_cp_{$ident}_",
+    sprintf("%05s", $k), "[] = {", "\n";
+    if (key_exists("default", $v)) {
+        if ($v['default'] == 'GT') { /* hack to make > translate to &gt; not GT; */
             $v['default'] = "gt";
-		echo "\t{ {", sprintf("\"%-21s", $v["default"].'",'),
-			"\t", sprintf("%02d", (count($v) - 1)), ",\t\t",
-            sprintf("% 2d", strlen($v["default"])), '} },', "\n";
-	} else {
-		echo "\t{ {", sprintf("%-22s", 'NULL,'),
-			"\t", sprintf("%02d", count($v)), ",\t\t0} },\n";
-	}
-	unset($v["default"]);
-	foreach ($v as $l => $w) {
-		echo "\t{ {", sprintf("\"%-21s", $w.'",'), "\t", sprintf("0x%05s", $l), ",\t",
-            sprintf("% 2d", strlen($w)), '} },', "\n";
-	}
-	echo "};\n";
+        }
+        echo "\t{ {", sprintf("\"%-21s", $v["default"].'",'),
+        "\t", sprintf("%02d", (count($v) - 1)), ",\t\t",
+        sprintf("% 2d", strlen($v["default"])), '} },', "\n";
+    } else {
+        echo "\t{ {", sprintf("%-22s", 'NULL,'),
+        "\t", sprintf("%02d", count($v)), ",\t\t0} },\n";
+    }
+    unset($v["default"]);
+    foreach ($v as $l => $w) {
+        echo "\t{ {", sprintf("\"%-21s", $w.'",'), "\t", sprintf("0x%05s", $l), ",\t",
+        sprintf("% 2d", strlen($w)), '} },', "\n";
+    }
+    echo "};\n";
 }
 echo "\n/* End of double code point tables }}} */", "\n\n";
 
 skip_multicp:
 
-if ($pass2 < 2)
+if ($pass2 < 2) {
     echo "/* {{{ Stage 3 Tables for $name */", "\n\n";
+}
 
 $t = <<<CODE
 static const entity_stage3_row empty_stage3_table[] = {
@@ -513,61 +534,71 @@ static const entity_stage3_row empty_stage3_table[] = {
 
 CODE;
 
-if (!$pass2)
+if (!$pass2) {
     echo $t;
+}
 
 $mstable = array();
 foreach ($dp as $el) {
-	$s1 = (hexdec($el[1]) & 0xFFF000) >> 12;
-	$s2 = (hexdec($el[1]) & 0xFC0) >> 6;
-	$s3 = hexdec($el[1]) & 0x3F;
-	if (key_exists($el[1], $multicp_rows)) {
-		$mstable[$s1][$s2][$s3] = "";
-	} else {
-		$mstable[$s1][$s2][$s3] = $el[0];
-	}
+    $s1 = (hexdec($el[1]) & 0xFFF000) >> 12;
+    $s2 = (hexdec($el[1]) & 0xFC0) >> 6;
+    $s3 = hexdec($el[1]) & 0x3F;
+    if (key_exists($el[1], $multicp_rows)) {
+        $mstable[$s1][$s2][$s3] = "";
+    } else {
+        $mstable[$s1][$s2][$s3] = $el[0];
+    }
 }
 
 for ($i = 0; $i < 0x1E; $i++) {
-	for ($k = 0; $k < 64; $k++) {
-		$any3 = false;
-		$col3 = array();
-		for ($l = 0; $l < 64; $l++) {
-			if (isset($mstable[$i][$k][$l])) {
-				$any3 = true;
-				$col3[$l] = $mstable[$i][$k][$l];
-			} else {
-				$col3[$l] = null;
-			}
-		}
-		if ($any3) {
-			echo "static const entity_stage3_row stage3_table_{$ident}_",
-				sprintf("%02X%03X", $i, $k << 6), "[] = {\n";
-			foreach ($col3 as $y => $z) {
-				if ($y == 0) echo "\t";
-				elseif ($y % 4 == 0) echo "\n\t";
-				else echo " ";
-				if ($z === NULL)
-					echo "{0, { {NULL, 0} } },";
-                elseif ($z === "QUOT") /* hack to translate " into &quote;, not &QUOT; */
+    for ($k = 0; $k < 64; $k++) {
+        $any3 = false;
+        $col3 = array();
+        for ($l = 0; $l < 64; $l++) {
+            if (isset($mstable[$i][$k][$l])) {
+                $any3 = true;
+                $col3[$l] = $mstable[$i][$k][$l];
+            } else {
+                $col3[$l] = null;
+            }
+        }
+        if ($any3) {
+            echo "static const entity_stage3_row stage3_table_{$ident}_",
+            sprintf("%02X%03X", $i, $k << 6), "[] = {\n";
+            foreach ($col3 as $y => $z) {
+                if ($y == 0) {
+                    echo "\t";
+                } elseif ($y % 4 == 0) {
+                    echo "\n\t";
+                } else {
+                    echo " ";
+                }
+                if ($z === null) {
+                    echo "{0, { {NULL, 0} } },";
+                } elseif ($z === "QUOT") { /* hack to translate " into &quote;, not &QUOT; */
                     echo "{0, { {\"quot\", 4} } },";
-				elseif ($z !== "")
-					echo "{0, { {\"$z\", ", strlen($z), "} } },";
-				else
-					echo "{1, { {(void *)", sprintf("multi_cp_{$ident}_%05X",
-						($i << 12) | ($k << 6) | $y ), ", 0} } },";
+                } elseif ($z !== "") {
+                    echo "{0, { {\"$z\", ", strlen($z), "} } },";
+                } else {
+                    echo "{1, { {(void *)", sprintf(
+                        "multi_cp_{$ident}_%05X",
+                        ($i << 12) | ($k << 6) | $y
+                    ), ", 0} } },";
+                }
 
-			}
-			echo "\n};\n\n";
-		}
-	}
+            }
+            echo "\n};\n\n";
+        }
+    }
 }
 
-if ($pass2 < 2)
+if ($pass2 < 2) {
     echo "/* end of stage 3 Tables for $name }}} */", "\n\n";
+}
 
-if ($pass2 > 1)
+if ($pass2 > 1) {
     goto hashtables;
+}
 
 echo
 "/* {{{ Stage 2 Tables for $name */", "\n\n";
@@ -594,30 +625,36 @@ static const entity_stage2_row empty_stage2_table[] = {
 
 CODE;
 
-if (!$pass2)
+if (!$pass2) {
     echo $t;
+}
 
 for ($i = 0; $i < 0x1E; $i++) {
-	$any = false;
-	for ($k = 0; $k < 64; $k++) {
-		if (isset($mstable[$i][$k]))
-			$any = true;
-	}
-	if ($any) {
-		echo "static const entity_stage2_row stage2_table_{$ident}_",
-			sprintf("%02X000", $i), "[] = {\n";
-		for ($k = 0; $k < 64; $k++) {
-			if ($k == 0) echo "\t";
-			elseif ($k % 4 == 0) echo "\n\t";
-			else echo " ";
-			if (isset($mstable[$i][$k])) {
-				echo sprintf("stage3_table_{$ident}_%05X", ($i << 12) | ($k << 6)), ",";
-			} else {
-				echo "empty_stage3_table", ",";
-			}
-		}
-		echo "\n};\n\n";
-	}
+    $any = false;
+    for ($k = 0; $k < 64; $k++) {
+        if (isset($mstable[$i][$k])) {
+            $any = true;
+        }
+    }
+    if ($any) {
+        echo "static const entity_stage2_row stage2_table_{$ident}_",
+        sprintf("%02X000", $i), "[] = {\n";
+        for ($k = 0; $k < 64; $k++) {
+            if ($k == 0) {
+                echo "\t";
+            } elseif ($k % 4 == 0) {
+                echo "\n\t";
+            } else {
+                echo " ";
+            }
+            if (isset($mstable[$i][$k])) {
+                echo sprintf("stage3_table_{$ident}_%05X", ($i << 12) | ($k << 6)), ",";
+            } else {
+                echo "empty_stage3_table", ",";
+            }
+        }
+        echo "\n};\n\n";
+    }
 }
 
 echo
@@ -625,10 +662,11 @@ echo
 
 echo "static const entity_stage1_row entity_ms_table_{$ident}[] = {\n";
 for ($i = 0; $i < 0x1E; $i++) {
-	if (isset($mstable[$i]))
-		echo "\t", sprintf("stage2_table_{$ident}_%02X000", $i), ",\n";
-	else
-		echo "\tempty_stage2_table,\n";
+    if (isset($mstable[$i])) {
+        echo "\t", sprintf("stage2_table_{$ident}_%02X000", $i), ",\n";
+    } else {
+        echo "\tempty_stage2_table,\n";
+    }
 }
 echo "};\n\n";
 
@@ -714,53 +752,65 @@ static const entity_cp_map ht_bucket_empty[] = { {NULL, 0, 0, 0} };
 
 CODE;
 
-if (!$pass2)
+if (!$pass2) {
     echo $t;
+}
 
 function hashfun($str)
 {
 
-	$hash = 5381;
-	$nKeyLength = strlen($str);
-	$pos = 0;
+    $hash = 5381;
+    $nKeyLength = strlen($str);
+    $pos = 0;
 
-	for (; $nKeyLength > 0; $nKeyLength--) {
-		$hash = (int)(((int)(((int)($hash << 5)) + $hash)) + ord($str[$pos++]))
-				 & 0xFFFFFFFF;
-	}
-	return $hash;
+    for (; $nKeyLength > 0; $nKeyLength--) {
+        $hash = (int)(((int)(((int)($hash << 5)) + $hash)) + ord($str[$pos++]))
+                 & 0xFFFFFFFF;
+    }
+    return $hash;
 
 }
 
-$numelems = max(pow(2, ceil(log(1.5*count($origdp))/log(2))),16);
+$numelems = max(pow(2, ceil(log(1.5 * count($origdp)) / log(2))), 16);
 $mask = $numelems - 1;
 $hashes = array();
 foreach ($origdp as $e) {
-	$hashes[hashfun($e[0]) & $mask][] = $e;
-	if (isset($e[2])) {
-		$entlen = strlen($e[0]) + 2;
-		$utf8len = strlen(
-			mb_convert_encoding("&#x{$e[1]};&#x{$e[2]};", "UTF-8", "HTML-ENTITIES"));
-		if ($utf8len > $entlen*1.2) {
-			die("violated assumption for traverse_for_entities");
-		}
-	}
+    $hashes[hashfun($e[0]) & $mask][] = $e;
+    if (isset($e[2])) {
+        $entlen = strlen($e[0]) + 2;
+        $utf8len = strlen(
+            mb_convert_encoding("&#x{$e[1]};&#x{$e[2]};", "UTF-8", "HTML-ENTITIES")
+        );
+        if ($utf8len > $entlen * 1.2) {
+            die("violated assumption for traverse_for_entities");
+        }
+    }
 }
 
 for ($i = 0; $i < $numelems; $i++) {
-	if (empty($hashes[$i]))
-		continue;
-	echo "static const entity_cp_map ht_bucket_{$ident}_", sprintf("%03X", $i) ,"[] = {";
-	foreach ($hashes[$i] as $h) {
-		if (isset($h[2])) {
-			echo sprintf(' {"%s", %d, 0x%05X, 0x%05X},',
-				$h[0], strlen($h[0]), hexdec($h[1]), hexdec($h[2]));
-		} else {
-			echo sprintf(' {"%s", %d, 0x%05X, 0},',
-				$h[0], strlen($h[0]), hexdec($h[1]));
-		}
-	}
-	echo " {NULL, 0, 0, 0} };\n";
+    if (empty($hashes[$i])) {
+        continue;
+    }
+    echo "static const entity_cp_map ht_bucket_{$ident}_", sprintf("%03X", $i) ,"[] = {";
+    foreach ($hashes[$i] as $h) {
+        if (isset($h[2])) {
+            echo sprintf(
+                ' {"%s", %d, 0x%05X, 0x%05X},',
+                $h[0],
+                strlen($h[0]),
+                hexdec($h[1]),
+                hexdec($h[2])
+            );
+        } else {
+            echo sprintf(
+                ' {"%s", %d, 0x%05X, 0},',
+                $h[0],
+                strlen($h[0]),
+                hexdec($h[1])
+            );
+        }
+    }
+    echo " {NULL, 0, 0, 0} };\n";
 }
 echo "\n";
 
@@ -768,13 +818,18 @@ echo
 "static const entity_cp_map *const ht_buckets_{$ident}[] = {\n";
 
 for ($i = 0; $i < $numelems; $i++) {
-	if ($i == 0) echo "\t";
-	elseif ($i % 4 == 0) echo "\n\t";
-	else echo " ";
-	if (empty($hashes[$i]))
-		echo "ht_bucket_empty,";
-	else
-		echo "ht_bucket_{$ident}_", sprintf("%03X", $i), ",";
+    if ($i == 0) {
+        echo "\t";
+    } elseif ($i % 4 == 0) {
+        echo "\n\t";
+    } else {
+        echo " ";
+    }
+    if (empty($hashes[$i])) {
+        echo "ht_bucket_empty,";
+    } else {
+        echo "ht_bucket_{$ident}_", sprintf("%03X", $i), ",";
+    }
 }
 echo "\n};\n\n";
 
