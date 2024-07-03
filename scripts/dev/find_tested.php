@@ -85,7 +85,8 @@ foreach($extension_method_info as $record) {
  * Marks the "tested" status of methods in $method_info according
  * to whether they are tested in $phpt_files
  */
-function mark_methods_as_tested($method_info, $phpt_files) {
+function mark_methods_as_tested($method_info, $phpt_files)
+{
 
     foreach($phpt_files as $phpt_file) {
         $tested_functions = extract_tests($phpt_file);
@@ -114,7 +115,8 @@ function mark_methods_as_tested($method_info, $phpt_files) {
 /**
  * returns an array containing a record for each defined method.
  */
-function populate_method_info() {
+function populate_method_info()
+{
 
     $method_info = array();
 
@@ -186,7 +188,7 @@ function get_phpt_files($dir, &$phpt_file_count, &$all_phpt)
         if ($file != '.' && $file != '..') {
             $path = $thisdir->path.$file;
             if(is_dir($path) == true) {
-                get_phpt_files($path , $phpt_file_count , $all_phpt);
+                get_phpt_files($path, $phpt_file_count, $all_phpt);
             } else {
                 if (preg_match("/\w+\.phpt$/", $file)) {
                     $all_phpt[$phpt_file_count] = $path;
@@ -200,7 +202,8 @@ function get_phpt_files($dir, &$phpt_file_count, &$all_phpt)
 /**
  * Extract tests from a specified file, returns an array of tested function tokens
  */
-function extract_tests($file) {
+function extract_tests($file)
+{
     $code = file_get_contents($file);
 
     if (!preg_match('/--FILE--\s*(.*)\s*--(EXPECTF|EXPECTREGEX|EXPECT)?--/is', $code, $r)) {
@@ -210,19 +213,18 @@ function extract_tests($file) {
 
     $tokens = token_get_all($r[1]);
     $functions = array_filter($tokens, 'filter_functions');
-    $functions = array_map( 'map_token_value',$functions);
+    $functions = array_map('map_token_value', $functions);
     $functions = array_unique($functions);
 
     return $functions;
 }
 
-function filter_functions($x) {
+function filter_functions($x)
+{
     return $x[0] == 307;
 }
 
-function map_token_value($x) {
+function map_token_value($x)
+{
     return $x[1];
 }
-
-
-?>

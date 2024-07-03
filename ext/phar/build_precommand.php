@@ -41,7 +41,7 @@ foreach($classes as $name) {
         $f[$c] = substr($f[$c], 0, -1);
     }
     if (substr($f[$c], -2) == '?>') {
-        $f[$c] = substr($f[$c], 0,-2);
+        $f[$c] = substr($f[$c], 0, -2);
     }
     while ($c && (strlen($f[$c]) == 0 || $f[$c] == "\n" || $f[$c] == "\r\n")) {
         unset($f[$c--]);

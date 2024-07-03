@@ -53,7 +53,7 @@ class AsciiTable
      *
      * @return void
      */
-    public function add(string ...$values) : void
+    public function add(string ...$values): void
     {
         $this->values[] = $values;
 
@@ -71,7 +71,7 @@ class AsciiTable
     /**
      * @return string
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         $result = '';
 
@@ -134,7 +134,7 @@ foreach ($sourceConstants as $name) {
 $allGood = true;
 
 if ($notInPHP) {
-    uasort($notInPHP, function($a, $b) {
+    uasort($notInPHP, function ($a, $b) {
         return version_compare($a[0], $b[0]);
     });
 
@@ -172,7 +172,7 @@ if ($notInCurl) {
 }
 
 if ($outdated) {
-    uasort($outdated, function($a, $b) {
+    uasort($outdated, function ($a, $b) {
         return version_compare($a, $b);
     });
 
@@ -203,7 +203,7 @@ if ($allGood) {
  *
  * @return array
  */
-function getCurlConstants() : array
+function getCurlConstants(): array
 {
     $html = file_get_contents(CURL_DOC_FILE);
 
@@ -253,7 +253,7 @@ function getCurlConstants() : array
  *
  * @return array
  */
-function getSourceConstants() : array
+function getSourceConstants(): array
 {
     $source = file_get_contents(SOURCE_FILE);
 
@@ -288,7 +288,7 @@ function getSourceConstants() : array
  *
  * @throws \RuntimeException
  */
-function getHexVersion(string $version) : string
+function getHexVersion(string $version): string
 {
     $parts = explode('.', $version);
 

@@ -737,17 +737,27 @@ const U_ERROR_LIMIT = UNKNOWN;
 class IntlIterator implements Iterator
 {
     /** @tentative-return-type */
-    public function current(): mixed {}
+    public function current(): mixed
+    {
+    }
 
     /** @tentative-return-type */
-    public function key(): mixed {}
+    public function key(): mixed
+    {
+    }
 
     /** @tentative-return-type */
-    public function next(): void {}
+    public function next(): void
+    {
+    }
 
     /** @tentative-return-type */
-    public function rewind(): void {}
+    public function rewind(): void
+    {
+    }
 
     /** @tentative-return-type */
-    public function valid(): bool {}
+    public function valid(): bool
+    {
+    }
 }

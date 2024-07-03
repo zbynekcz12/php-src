@@ -40,29 +40,51 @@ class Exception implements Throwable
     private array $trace = [];
     private ?Throwable $previous = null;
 
-    private function __clone(): void {}
+    private function __clone(): void
+    {
+    }
 
-    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null) {}
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)
+    {
+    }
 
     /** @tentative-return-type */
-    public function __wakeup(): void {}
+    public function __wakeup(): void
+    {
+    }
 
-    final public function getMessage(): string {}
+    final public function getMessage(): string
+    {
+    }
 
     /** @return int */
-    final public function getCode() {} // TODO add proper type (i.e. int|string)
+    final public function getCode()
+    {
+    } // TODO add proper type (i.e. int|string)
 
-    final public function getFile(): string {}
+    final public function getFile(): string
+    {
+    }
 
-    final public function getLine(): int {}
+    final public function getLine(): int
+    {
+    }
 
-    final public function getTrace(): array {}
+    final public function getTrace(): array
+    {
+    }
 
-    final public function getPrevious(): ?Throwable {}
+    final public function getPrevious(): ?Throwable
+    {
+    }
 
-    final public function getTraceAsString(): string {}
+    final public function getTraceAsString(): string
+    {
+    }
 
-    public function __toString(): string {}
+    public function __toString(): string
+    {
+    }
 }
 
 class ErrorException extends Exception
@@ -76,9 +98,12 @@ class ErrorException extends Exception
         ?string $filename = null,
         ?int $line = null,
         ?Throwable $previous = null
-    ) {}
+    ) {
+    }
 
-    final public function getSeverity(): int {}
+    final public function getSeverity(): int
+    {
+    }
 }
 
 class Error implements Throwable
@@ -100,43 +125,65 @@ class Error implements Throwable
     private ?Throwable $previous = null;
 
     /** @implementation-alias Exception::__clone */
-    private function __clone(): void {}
+    private function __clone(): void
+    {
+    }
 
     /** @implementation-alias Exception::__construct */
-    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null) {}
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)
+    {
+    }
 
     /**
      * @tentative-return-type
      * @implementation-alias Exception::__wakeup
      */
-    public function __wakeup(): void {}
+    public function __wakeup(): void
+    {
+    }
 
     /** @implementation-alias Exception::getMessage */
-    final public function getMessage(): string {}
+    final public function getMessage(): string
+    {
+    }
 
     /**
      * @return int
      * @implementation-alias Exception::getCode
      */
-    final public function getCode() {}
+    final public function getCode()
+    {
+    }
 
     /** @implementation-alias Exception::getFile */
-    final public function getFile(): string {}
+    final public function getFile(): string
+    {
+    }
 
     /** @implementation-alias Exception::getLine */
-    final public function getLine(): int {}
+    final public function getLine(): int
+    {
+    }
 
     /** @implementation-alias Exception::getTrace */
-    final public function getTrace(): array {}
+    final public function getTrace(): array
+    {
+    }
 
     /** @implementation-alias Exception::getPrevious */
-    final public function getPrevious(): ?Throwable {}
+    final public function getPrevious(): ?Throwable
+    {
+    }
 
     /** @implementation-alias Exception::getTraceAsString */
-    final public function getTraceAsString(): string {}
+    final public function getTraceAsString(): string
+    {
+    }
 
     /** @implementation-alias Exception::__toString */
-    public function __toString(): string {}
+    public function __toString(): string
+    {
+    }
 }
 
 class CompileError extends Error

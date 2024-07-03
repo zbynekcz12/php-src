@@ -1,4 +1,5 @@
 <?php
+
 if (!extension_loaded('zip')) {
     dl('zip.so');
 }
@@ -14,7 +15,7 @@ echo "statusSys: " . $za->statusSys . "\n";
 echo "filename: " . $za->filename . "\n";
 echo "comment: " . $za->comment . "\n";
 
-for ($i=0; $i<$za->numFiles;$i++) {
+for ($i = 0; $i < $za->numFiles;$i++) {
     echo "index: $i\n";
     print_r($za->statIndex($i));
 }

@@ -36,7 +36,7 @@ foreach ($types as $mime => $info) {
 }
 
 // Only keep the MIME type.
-$extensions = array_map(function($x) { return $x[0]; }, $extensions);
+$extensions = array_map(function ($x) { return $x[0]; }, $extensions);
 
 $additional_mime_maps = [
     "jsm" => "application/javascript",
@@ -50,7 +50,7 @@ foreach($additional_mime_maps as $ext => $mime) {
     }
 }
 
-uksort($extensions, function($ext1, $ext2) {
+uksort($extensions, function ($ext1, $ext2) {
     return strcmp($ext1, $ext2);
 });
 

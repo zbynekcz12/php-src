@@ -146,16 +146,16 @@ function main(): void
      * looks like it doesn't belong, it probably doesn't; cull at will.
      */
     global $DETAILED, $PHP_FAILED_TESTS, $SHOW_ONLY_GROUPS, $argc, $argv, $cfg,
-           $end_time, $environment,
-           $exts_skipped, $exts_tested, $exts_to_test, $failed_tests_file,
-           $ignored_by_ext, $ini_overwrites, $colorize,
-           $log_format, $no_clean, $no_file_cache,
-           $pass_options, $php, $php_cgi, $preload,
-           $result_tests_file, $slow_min_ms, $start_time,
-           $temp_source, $temp_target, $test_cnt,
-           $test_files, $test_idx, $test_results, $testfile,
-           $valgrind, $sum_results, $shuffle, $file_cache, $num_repeats,
-           $show_progress;
+    $end_time, $environment,
+    $exts_skipped, $exts_tested, $exts_to_test, $failed_tests_file,
+    $ignored_by_ext, $ini_overwrites, $colorize,
+    $log_format, $no_clean, $no_file_cache,
+    $pass_options, $php, $php_cgi, $preload,
+    $result_tests_file, $slow_min_ms, $start_time,
+    $temp_source, $temp_target, $test_cnt,
+    $test_files, $test_idx, $test_results, $testfile,
+    $valgrind, $sum_results, $shuffle, $file_cache, $num_repeats,
+    $show_progress;
     // Parallel testing
     global $workers, $workerID;
     global $context_line_count;
@@ -441,7 +441,7 @@ function main(): void
                         break;
                     }
                     $i--;
-                // no break
+                    // no break
                 case 'w':
                     $failed_tests_file = fopen($argv[++$i], 'w+t');
                     break;
@@ -1083,10 +1083,14 @@ function test_sort($a, $b): int
     $a = test_name($a);
     $b = test_name($b);
 
-    $ta = strpos($a, TEST_PHP_SRCDIR . "/tests") === 0 ? 1 + (strpos($a,
-            TEST_PHP_SRCDIR . "/tests/run-test") === 0 ? 1 : 0) : 0;
-    $tb = strpos($b, TEST_PHP_SRCDIR . "/tests") === 0 ? 1 + (strpos($b,
-            TEST_PHP_SRCDIR . "/tests/run-test") === 0 ? 1 : 0) : 0;
+    $ta = strpos($a, TEST_PHP_SRCDIR . "/tests") === 0 ? 1 + (strpos(
+        $a,
+        TEST_PHP_SRCDIR . "/tests/run-test"
+    ) === 0 ? 1 : 0) : 0;
+    $tb = strpos($b, TEST_PHP_SRCDIR . "/tests") === 0 ? 1 + (strpos(
+        $b,
+        TEST_PHP_SRCDIR . "/tests/run-test"
+    ) === 0 ? 1 : 0) : 0;
 
     if ($ta == $tb) {
         return strcmp($a, $b);
@@ -1240,7 +1244,7 @@ function system_with_timeout(
     }
     if ($stat["exitcode"] > 128 && $stat["exitcode"] < 160) {
         $data .= "\nTermsig=" . ($stat["exitcode"] - 128) . "\n";
-    } else if (defined('PHP_WINDOWS_VERSION_MAJOR') && (($stat["exitcode"] >> 28) & 0b1111) === 0b1100) {
+    } elseif (defined('PHP_WINDOWS_VERSION_MAJOR') && (($stat["exitcode"] >> 28) & 0b1111) === 0b1100) {
         // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/87fba13e-bf06-450e-83b1-9241dc81e781
         $data .= "\nTermsig=" . $stat["exitcode"] . "\n";
     }
@@ -1259,7 +1263,7 @@ function run_all_tests(array $test_files, array $env, ?string $redir_tested = nu
     if ($file_cache !== null || $preload) {
         /* Automatically skip opcache tests in --file-cache and --preload mode,
          * because opcache generally expects these to run under a default configuration. */
-        $test_files = array_filter($test_files, function($test) use($preload) {
+        $test_files = array_filter($test_files, function ($test) use ($preload) {
             if (!is_string($test)) {
                 return true;
             }
@@ -1480,161 +1484,161 @@ function run_all_tests_parallel(array $test_files, array $env, ?string $redir_te
     // Tests waiting due to conflicts. Map from conflict key to array.
     $waitingTests = [];
 
-escape:
-    while ($test_files || $sequentialTests || $testsInProgress > 0) {
-        $toRead = array_values($workerSocks);
-        $toWrite = null;
-        $toExcept = null;
-        if (stream_select($toRead, $toWrite, $toExcept, 10)) {
-            foreach ($toRead as $workerSock) {
-                $i = array_search($workerSock, $workerSocks);
-                if ($i === false) {
-                    kill_children($workerProcs);
-                    error("Could not find worker stdout in array of worker stdouts, THIS SHOULD NOT HAPPEN.");
-                }
-                if (feof($workerSock)) {
-                    kill_children($workerProcs);
-                    error("Worker $i died unexpectedly");
-                }
-                while (false !== ($rawMessage = fgets($workerSock))) {
-                    // work around fgets truncating things
-                    if (($rawMessageBuffers[$i] ?? '') !== '') {
-                        $rawMessage = $rawMessageBuffers[$i] . $rawMessage;
-                        $rawMessageBuffers[$i] = '';
-                    }
-                    if (substr($rawMessage, -1) !== "\n") {
-                        $rawMessageBuffers[$i] = $rawMessage;
-                        continue;
-                    }
-
-                    $message = unserialize(base64_decode($rawMessage));
-                    if (!$message) {
+    escape:
+        while ($test_files || $sequentialTests || $testsInProgress > 0) {
+            $toRead = array_values($workerSocks);
+            $toWrite = null;
+            $toExcept = null;
+            if (stream_select($toRead, $toWrite, $toExcept, 10)) {
+                foreach ($toRead as $workerSock) {
+                    $i = array_search($workerSock, $workerSocks);
+                    if ($i === false) {
                         kill_children($workerProcs);
-                        $stuff = fread($workerSock, 65536);
-                        error("Could not decode message from worker $i: '$rawMessage$stuff'");
+                        error("Could not find worker stdout in array of worker stdouts, THIS SHOULD NOT HAPPEN.");
                     }
+                    if (feof($workerSock)) {
+                        kill_children($workerProcs);
+                        error("Worker $i died unexpectedly");
+                    }
+                    while (false !== ($rawMessage = fgets($workerSock))) {
+                        // work around fgets truncating things
+                        if (($rawMessageBuffers[$i] ?? '') !== '') {
+                            $rawMessage = $rawMessageBuffers[$i] . $rawMessage;
+                            $rawMessageBuffers[$i] = '';
+                        }
+                        if (substr($rawMessage, -1) !== "\n") {
+                            $rawMessageBuffers[$i] = $rawMessage;
+                            continue;
+                        }
 
-                    switch ($message["type"]) {
-                        case "tests_finished":
-                            $testsInProgress--;
-                            foreach ($activeConflicts as $key => $workerId) {
-                                if ($workerId === $i) {
-                                    unset($activeConflicts[$key]);
-                                    if (isset($waitingTests[$key])) {
-                                        while ($test = array_pop($waitingTests[$key])) {
-                                            $test_files[] = $test;
+                        $message = unserialize(base64_decode($rawMessage));
+                        if (!$message) {
+                            kill_children($workerProcs);
+                            $stuff = fread($workerSock, 65536);
+                            error("Could not decode message from worker $i: '$rawMessage$stuff'");
+                        }
+
+                        switch ($message["type"]) {
+                            case "tests_finished":
+                                $testsInProgress--;
+                                foreach ($activeConflicts as $key => $workerId) {
+                                    if ($workerId === $i) {
+                                        unset($activeConflicts[$key]);
+                                        if (isset($waitingTests[$key])) {
+                                            while ($test = array_pop($waitingTests[$key])) {
+                                                $test_files[] = $test;
+                                            }
+                                            unset($waitingTests[$key]);
                                         }
-                                        unset($waitingTests[$key]);
                                     }
                                 }
-                            }
-                            $junit->mergeResults($message["junit"]);
-                            // no break
-                        case "ready":
-                            // Schedule sequential tests only once we are down to one worker.
-                            if (count($workerProcs) === 1 && $sequentialTests) {
-                                $test_files = array_merge($test_files, $sequentialTests);
-                                $sequentialTests = [];
-                            }
-                            // Batch multiple tests to reduce communication overhead.
-                            // - When valgrind is used, communication overhead is relatively small,
-                            //   so just use a batch size of 1.
-                            // - If this is running a small enough number of tests,
-                            //   reduce the batch size to give batches to more workers.
-                            $files = [];
-                            $maxBatchSize = $valgrind ? 1 : ($shuffle ? 4 : 32);
-                            $averageFilesPerWorker = max(1, (int) ceil($totalFileCount / count($workerProcs)));
-                            $batchSize = min($maxBatchSize, $averageFilesPerWorker);
-                            while (count($files) <= $batchSize && $file = array_pop($test_files)) {
-                                foreach ($fileConflictsWith[$file] as $conflictKey) {
-                                    if (isset($activeConflicts[$conflictKey])) {
-                                        $waitingTests[$conflictKey][] = $file;
-                                        continue 2;
-                                    }
+                                $junit->mergeResults($message["junit"]);
+                                // no break
+                            case "ready":
+                                // Schedule sequential tests only once we are down to one worker.
+                                if (count($workerProcs) === 1 && $sequentialTests) {
+                                    $test_files = array_merge($test_files, $sequentialTests);
+                                    $sequentialTests = [];
                                 }
-                                $files[] = $file;
-                            }
-                            if ($files) {
-                                foreach ($files as $file) {
+                                // Batch multiple tests to reduce communication overhead.
+                                // - When valgrind is used, communication overhead is relatively small,
+                                //   so just use a batch size of 1.
+                                // - If this is running a small enough number of tests,
+                                //   reduce the batch size to give batches to more workers.
+                                $files = [];
+                                $maxBatchSize = $valgrind ? 1 : ($shuffle ? 4 : 32);
+                                $averageFilesPerWorker = max(1, (int) ceil($totalFileCount / count($workerProcs)));
+                                $batchSize = min($maxBatchSize, $averageFilesPerWorker);
+                                while (count($files) <= $batchSize && $file = array_pop($test_files)) {
                                     foreach ($fileConflictsWith[$file] as $conflictKey) {
-                                        $activeConflicts[$conflictKey] = $i;
+                                        if (isset($activeConflicts[$conflictKey])) {
+                                            $waitingTests[$conflictKey][] = $file;
+                                            continue 2;
+                                        }
+                                    }
+                                    $files[] = $file;
+                                }
+                                if ($files) {
+                                    foreach ($files as $file) {
+                                        foreach ($fileConflictsWith[$file] as $conflictKey) {
+                                            $activeConflicts[$conflictKey] = $i;
+                                        }
+                                    }
+                                    $testsInProgress++;
+                                    send_message($workerSocks[$i], [
+                                        "type" => "run_tests",
+                                        "test_files" => $files,
+                                        "env" => $env,
+                                        "redir_tested" => $redir_tested
+                                    ]);
+                                } else {
+                                    proc_terminate($workerProcs[$i]);
+                                    unset($workerProcs[$i], $workerSocks[$i]);
+                                    goto escape;
+                                }
+                                break;
+                            case "test_result":
+                                list($name, $index, $result, $resultText) = [$message["name"], $message["index"], $message["result"], $message["text"]];
+                                foreach ($message["PHP_FAILED_TESTS"] as $category => $tests) {
+                                    $PHP_FAILED_TESTS[$category] = array_merge($PHP_FAILED_TESTS[$category], $tests);
+                                }
+                                $test_idx++;
+
+                                if ($show_progress) {
+                                    clear_show_test();
+                                }
+
+                                echo $resultText;
+
+                                if ($show_progress) {
+                                    show_test($test_idx, count($workerProcs) . "/$workers concurrent test workers running");
+                                }
+
+                                if (!is_array($name) && $result != 'REDIR') {
+                                    $test_results[$index] = $result;
+
+                                    if ($failed_tests_file && ($result == 'XFAILED' || $result == 'XLEAKED' || $result == 'FAILED' || $result == 'WARNED' || $result == 'LEAKED')) {
+                                        fwrite($failed_tests_file, "$index\n");
+                                    }
+                                    if ($result_tests_file) {
+                                        fwrite($result_tests_file, "$result\t$index\n");
                                     }
                                 }
-                                $testsInProgress++;
-                                send_message($workerSocks[$i], [
-                                    "type" => "run_tests",
-                                    "test_files" => $files,
-                                    "env" => $env,
-                                    "redir_tested" => $redir_tested
-                                ]);
-                            } else {
-                                proc_terminate($workerProcs[$i]);
-                                unset($workerProcs[$i], $workerSocks[$i]);
-                                goto escape;
-                            }
-                            break;
-                        case "test_result":
-                            list($name, $index, $result, $resultText) = [$message["name"], $message["index"], $message["result"], $message["text"]];
-                            foreach ($message["PHP_FAILED_TESTS"] as $category => $tests) {
-                                $PHP_FAILED_TESTS[$category] = array_merge($PHP_FAILED_TESTS[$category], $tests);
-                            }
-                            $test_idx++;
-
-                            if ($show_progress) {
-                                clear_show_test();
-                            }
-
-                            echo $resultText;
-
-                            if ($show_progress) {
-                                show_test($test_idx, count($workerProcs) . "/$workers concurrent test workers running");
-                            }
-
-                            if (!is_array($name) && $result != 'REDIR') {
-                                $test_results[$index] = $result;
-
-                                if ($failed_tests_file && ($result == 'XFAILED' || $result == 'XLEAKED' || $result == 'FAILED' || $result == 'WARNED' || $result == 'LEAKED')) {
-                                    fwrite($failed_tests_file, "$index\n");
-                                }
-                                if ($result_tests_file) {
-                                    fwrite($result_tests_file, "$result\t$index\n");
-                                }
-                            }
-                            break;
-                        case "error":
-                            kill_children($workerProcs);
-                            error("Worker $i reported error: $message[msg]");
-                            break;
-                        case "php_error":
-                            kill_children($workerProcs);
-                            $error_consts = [
-                                'E_ERROR',
-                                'E_WARNING',
-                                'E_PARSE',
-                                'E_NOTICE',
-                                'E_CORE_ERROR',
-                                'E_CORE_WARNING',
-                                'E_COMPILE_ERROR',
-                                'E_COMPILE_WARNING',
-                                'E_USER_ERROR',
-                                'E_USER_WARNING',
-                                'E_USER_NOTICE',
-                                'E_STRICT', // TODO Cleanup when removed from Zend Engine.
-                                'E_RECOVERABLE_ERROR',
-                                'E_DEPRECATED',
-                                'E_USER_DEPRECATED'
-                            ];
-                            $error_consts = array_combine(array_map('constant', $error_consts), $error_consts);
-                            error("Worker $i reported unexpected {$error_consts[$message['errno']]}: $message[errstr] in $message[errfile] on line $message[errline]");
-                            // no break
-                        default:
-                            kill_children($workerProcs);
-                            error("Unrecognised message type '$message[type]' from worker $i");
+                                break;
+                            case "error":
+                                kill_children($workerProcs);
+                                error("Worker $i reported error: $message[msg]");
+                                break;
+                            case "php_error":
+                                kill_children($workerProcs);
+                                $error_consts = [
+                                    'E_ERROR',
+                                    'E_WARNING',
+                                    'E_PARSE',
+                                    'E_NOTICE',
+                                    'E_CORE_ERROR',
+                                    'E_CORE_WARNING',
+                                    'E_COMPILE_ERROR',
+                                    'E_COMPILE_WARNING',
+                                    'E_USER_ERROR',
+                                    'E_USER_WARNING',
+                                    'E_USER_NOTICE',
+                                    'E_STRICT', // TODO Cleanup when removed from Zend Engine.
+                                    'E_RECOVERABLE_ERROR',
+                                    'E_DEPRECATED',
+                                    'E_USER_DEPRECATED'
+                                ];
+                                $error_consts = array_combine(array_map('constant', $error_consts), $error_consts);
+                                error("Worker $i reported unexpected {$error_consts[$message['errno']]}: $message[errstr] in $message[errfile] on line $message[errline]");
+                                // no break
+                            default:
+                                kill_children($workerProcs);
+                                error("Unrecognised message type '$message[type]' from worker $i");
+                        }
                     }
                 }
             }
         }
-    }
 
     if ($show_progress) {
         clear_show_test();
@@ -1835,9 +1839,9 @@ function run_test(string $php, $file, array $env): string
     $php = escapeshellarg($php);
 
     $retried = false;
-retry:
+    retry:
 
-    $org_file = $file;
+        $org_file = $file;
 
     $php_cgi = $env['TEST_PHP_CGI_EXECUTABLE'] ?? null;
     $phpdbg = $env['TEST_PHPDBG_EXECUTABLE'] ?? null;
@@ -2082,7 +2086,7 @@ TEST $file
             // even though all the files are re-created.
             $ini_settings['opcache.validate_timestamps'] = '0';
         }
-    } else if ($num_repeats > 1) {
+    } elseif ($num_repeats > 1) {
         // Make sure warnings still show up on the second run.
         $ini_settings['opcache.record_warnings'] = '1';
     }
@@ -3191,7 +3195,7 @@ function show_start(int $start_timestamp): void
 
 function show_end(int $start_timestamp, int|float $start_time, int|float $end_time): void
 {
-    echo "=====================================================================\nTIME END " . date('Y-m-d H:i:s', $start_timestamp + (int)(($end_time - $start_time)/1e9)) . "\n";
+    echo "=====================================================================\nTIME END " . date('Y-m-d H:i:s', $start_timestamp + (int)(($end_time - $start_time) / 1e9)) . "\n";
 }
 
 function show_summary(): void
@@ -3262,17 +3266,20 @@ function show_result(
     if (!$SHOW_ONLY_GROUPS || in_array($result, $SHOW_ONLY_GROUPS)) {
         if ($colorize) {
             /* Use ANSI escape codes for coloring test result */
-            switch ( $result ) {
+            switch ($result) {
                 case 'PASS': // Light Green
-                    $color = "\e[1;32m{$result}\e[0m"; break;
+                    $color = "\e[1;32m{$result}\e[0m";
+                    break;
                 case 'FAIL':
                 case 'BORK':
                 case 'LEAK':
                 case 'LEAK&FAIL':
                     // Light Red
-                    $color = "\e[1;31m{$result}\e[0m"; break;
+                    $color = "\e[1;31m{$result}\e[0m";
+                    break;
                 default: // Yellow
-                    $color = "\e[1;33m{$result}\e[0m"; break;
+                    $color = "\e[1;33m{$result}\e[0m";
+                    break;
             }
 
             echo "$color $tested [$tested_file] $extra\n";
@@ -3615,7 +3622,7 @@ class SkipCache
         $result = trim(system_with_timeout("$php \"$checkFile\"", $env));
         if (strpos($result, 'nocache') === 0) {
             $result = '';
-        } else if ($this->enable) {
+        } elseif ($this->enable) {
             $this->skips[$key][$code] = $result;
         }
         $this->misses++;
@@ -3951,7 +3958,7 @@ final class Differ
 
     public function __construct(callable $isEqual)
     {
-        $this->outputBuilder = new DiffOutputBuilder;
+        $this->outputBuilder = new DiffOutputBuilder();
         $this->isEqual = $isEqual;
     }
 

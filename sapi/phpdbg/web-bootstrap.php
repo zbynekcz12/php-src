@@ -8,8 +8,7 @@
  * break ...
  * run
  */
-if (!defined('PHPDBG_BOOTSTRAPPED'))
-{
+if (!defined('PHPDBG_BOOTSTRAPPED')) {
     /* define these once */
     define("PHPDBG_BOOTPATH", "/opt/php-zts/htdocs");
     define("PHPDBG_BOOTSTRAP", "index.php");
@@ -20,8 +19,7 @@ if (!defined('PHPDBG_BOOTSTRAPPED'))
  * Superglobals are JIT, phpdbg will not over-write whatever you set during bootstrap
  */
 
-$_SERVER = array
-(
+$_SERVER = array(
   'HTTP_HOST' => 'localhost',
   'HTTP_CONNECTION' => 'keep-alive',
   'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -42,7 +40,9 @@ $_SERVER = array
   'CONTEXT_DOCUMENT_ROOT' => PHPDBG_BOOTPATH,
   'SERVER_ADMIN' => '[no address given]',
   'SCRIPT_FILENAME' => sprintf(
-    '%s/%s', PHPDBG_BOOTPATH, PHPDBG_BOOTSTRAP
+      '%s/%s',
+      PHPDBG_BOOTPATH,
+      PHPDBG_BOOTSTRAP
   ),
   'REMOTE_PORT' => '47931',
   'GATEWAY_INTERFACE' => 'CGI/1.1',

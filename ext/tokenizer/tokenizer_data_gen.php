@@ -6,7 +6,9 @@ $outfile_stub = __DIR__ . '/tokenizer_data.stub.php';
 $outfile_c = __DIR__ . '/tokenizer_data.c';
 
 if (!file_exists($infile)) {
-    fwrite(STDERR, <<<ERROR
+    fwrite(
+        STDERR,
+        <<<ERROR
 $infile is missing.
 
 Please, generate the PHP parser files by scripts/dev/genfiles
